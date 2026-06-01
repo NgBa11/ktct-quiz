@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Triết Học Quiz</title>
+  <style>
+    :root {
+      --bg1:#07111f; --bg2:#08152b; --panel:rgba(16,25,48,.96); --text:#eef4ff; --muted:#9fb0d0;
+      --line:rgba(255,255,255,.10); --shadow:0 30px 80px rgba(0,0,0,.35);
+      --green:#35d06f; --red:#ff5d6c; --gray:#7f8aa6; --cyan:#2dd4ff; --blue:#2563eb; --amber:#ffc94d;
+    }
+    * { box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+      margin:0; color:var(--text); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(56,189,248,.16), transparent 30%),
+        linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 45%,#06101a 100%);
+    }
+    button { font:inherit; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+    .app { max-width:1600px; margin:0 auto; min-height:100vh; padding:16px; display:flex; flex-direction:column; gap:14px; }
+    .topbar {
+      display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+      padding:14px 18px; border:1px solid var(--line); border-radius:34px; background:rgba(255,255,255,.05);
+      backdrop-filter: blur(14px); box-shadow: var(--shadow);
+    }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .badge {
+      width:48px; height:48px; border-radius:16px; display:grid; place-items:center; font-weight:900; font-size:18px;
+      background:linear-gradient(135deg,#2dd4ff,#2563eb); box-shadow:0 10px 26px rgba(45,212,255,.18);
+    }
+    .brand h1 { margin:0; font-size:18px; letter-spacing:.4px; }
+    .brand p { margin:3px 0 0; color:var(--muted); font-size:13px; }
+    .pill { padding:8px 12px; border-radius:999px; background:rgba(255,255,255,.08); color:var(--muted); font-size:13px; }
+    .screen { display:none; flex:1; gap:16px; }
+    .screen.active { display:grid; }
+    .grid-start { grid-template-columns:1.15fr .85fr; }
+    .grid-game { grid-template-columns:1fr; }
+    .grid-finish { grid-template-columns:1.1fr .9fr; }
+    @media (max-width: 1100px) { .grid-start,.grid-finish { grid-template-columns:1fr; } }
+    .panel {
+      border:1px solid var(--line); border-radius:34px; background:var(--panel); box-shadow:var(--shadow); padding:20px;
+    }
+    .title-xl {
+      font-size:40px; margin:0; line-height:1.02; font-weight:900; letter-spacing:.4px;
+      background:linear-gradient(90deg,#ffdd57,#ffb84f,#ff7b51); -webkit-background-clip:text; background-clip:text; color:transparent;
+    }
+    .subtitle { color:var(--muted); line-height:1.6; font-size:14px; max-width:70ch; }
+    .package-grid { display:grid; gap:16px; grid-template-columns:repeat(2,minmax(0,1fr)); }
+    @media (min-width: 880px) { .package-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+    .pkg {
+      position:relative; overflow:hidden; min-height:205px; border:1px solid var(--line); border-radius:28px; color:#fff; text-align:left;
+      background:rgba(255,255,255,.06); box-shadow:inset 0 0 0 1px rgba(255,255,255,.04); transition:.2s ease; padding:18px;
+    }
+    .pkg:hover { transform:translateY(-2px); border-color:rgba(255,255,255,.22); }
+    .pkg::before { content:""; position:absolute; inset:0; opacity:.18; background:linear-gradient(135deg,var(--a),var(--b)); }
+    .pkg .shapewrap { position:relative; height:116px; display:grid; place-items:center; }
+    .shape {
+      display:grid; place-items:center; width:90px; height:90px; border:2px solid rgba(255,255,255,.35); background:rgba(255,255,255,.15);
+      font-size:34px; font-weight:900; box-shadow:0 18px 40px rgba(0,0,0,.22); user-select:none;
+    }
+    .square { clip-path:inset(0 round 18px); }
+    .triangle { clip-path:polygon(50% 0%,0% 100%,100% 100%); }
+    .hexagon { clip-path:polygon(25% 6%,75% 6%,100% 50%,75% 94%,25% 94%,0% 50%); }
+    .rectangle { clip-path:inset(0 round 18px); width:108px; }
+    .diamond { clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%); }
+    .pkg h3 { position:relative; margin:0; text-align:center; font-size:18px; font-weight:800; }
+    .pkg .meta { position:relative; text-align:center; margin-top:6px; font-size:12px; opacity:.86; letter-spacing:.18em; text-transform:uppercase; }
+    .demo-tag { position:absolute; top:12px; right:12px; padding:6px 10px; border-radius:999px; background:rgba(0,0,0,.25); font-size:12px; font-weight:700; }
+    .sidebox { display:flex; flex-direction:column; gap:14px; }
+    .card { border:1px solid var(--line); background:rgba(255,255,255,.05); border-radius:28px; padding:16px; }
+    .resume { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .btn {
+      border:0; border-radius:16px; padding:12px 16px; font-weight:800; color:#fff; background:rgba(255,255,255,.08);
+      transition:.2s ease;
+    }
+    .btn:hover { transform:translateY(-1px); background:rgba(255,255,255,.12); }
+    .btn.primary { background:linear-gradient(90deg,#2dd4ff,#2563eb); }
+    .btn.green { background:linear-gradient(90deg,#2dd36f,#17b55a); }
+    .btn.amber { background:linear-gradient(90deg,#ffcf55,#f4a91b); color:#102133; }
+    .btn.purple { background:linear-gradient(90deg,#8b5cf6,#7c3aed); }
+    .btn:disabled { opacity:.45; cursor:not-allowed; transform:none; }
+    .game-shell { display:grid; gap:16px; }
+    .game-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .game-top .center { text-align:center; flex:1; }
+    .small { font-size:13px; color:var(--muted); }
+    .energy { padding:16px; border:1px solid var(--line); border-radius:26px; background:rgba(255,255,255,.05); }
+    .energy-line { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .dot { width:18px; height:18px; border-radius:50%; background:#7d8698; opacity:.45; }
+    .dot.done.correct { background:var(--green); opacity:1; }
+    .dot.done.wrong { background:var(--red); opacity:1; }
+    .dot.current { box-shadow:0 0 0 3px rgba(45,212,255,.25); opacity:1; }
+    .qcard {
+      background:#f6f8ff; color:#0d1730; border-radius:28px; padding:22px; border:1px solid rgba(255,255,255,.06);
+      box-shadow:0 24px 60px rgba(0,0,0,.24);
+    }
+    .qnum { color:#0c57d2; font-size:14px; font-weight:800; }
+    .qtext { font-size:22px; line-height:1.55; margin:10px 0 0; }
+    .options { display:grid; gap:12px; margin-top:20px; }
+    .opt {
+      display:flex; align-items:center; gap:14px; width:100%; text-align:left; padding:14px 16px; border-radius:20px;
+      border:1px solid #d7deeb; background:#fff; color:#14213f; transition:.15s ease;
+    }
+    .opt:hover:not(:disabled) { border-color:#9dc5ff; background:#f3f8ff; }
+    .opt:disabled { cursor:default; }
+    .mark { width:38px; height:38px; border-radius:50%; display:grid; place-items:center; font-weight:900; background:#eef2f8; color:#52617d; border:1px solid #cdd7e8; }
+    .opt.correct { border-color:#28a745; background:#edf9f0; color:#137a2e; }
+    .opt.wrong { border-color:#ef4444; background:#fff1f2; color:#b91c1c; }
+    .opt.muted { opacity:.72; }
+    .feedback { margin-top:16px; padding:16px; border-radius:22px; color:#fff; font-weight:800; }
+    .feedback.ok { background:linear-gradient(90deg,#1db954,#21a63f); }
+    .feedback.bad { background:linear-gradient(90deg,#ef4444,#d62839); }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+    .score-panel { border:1px solid var(--line); background:rgba(255,255,255,.05); border-radius:28px; padding:16px; }
+    .score-grid {
+      display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px;
+    }
+    @media (min-width:780px) { .score-grid { grid-template-columns:repeat(8,minmax(0,1fr)); } }
+    @media (min-width:1280px) { .score-grid { grid-template-columns:repeat(10,minmax(0,1fr)); } }
+    .bubble {
+      aspect-ratio:1; border-radius:50%; border:0; color:#fff; font-weight:900; font-size:15px; display:grid; place-items:center;
+      box-shadow:0 10px 24px rgba(0,0,0,.22); transition:.15s ease;
+    }
+    .bubble:hover { transform:scale(1.06); }
+    .bubble.correct { background:var(--green); }
+    .bubble.wrong { background:var(--red); }
+    .bubble.pending { background:#75819c; }
+    .review {
+      border:1px solid var(--line); background:#f6f8ff; color:#0d1730; border-radius:28px; padding:20px;
+    }
+    .review-head { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .chip { padding:7px 11px; border-radius:999px; font-weight:800; font-size:12px; }
+    .chip.ok { background:#dff7e5; color:#127339; }
+    .chip.bad { background:#ffe0e4; color:#b42334; }
+    .chip.wait { background:#e8edf5; color:#51627d; }
+    .review-opt {
+      display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid #d6deea; border-radius:18px;
+      background:#fff; margin-top:10px;
+    }
+    .review-opt .m {
+      width:36px; height:36px; border-radius:50%; display:grid; place-items:center; font-weight:900;
+      background:#eef2f8; color:#53627d; border:1px solid #cdd7e8;
+    }
+    .review-opt.correct { background:#edf9f0; border-color:#8ce0a7; }
+    .review-opt.wrong { background:#fff1f2; border-color:#f59aa6; }
+    .review-opt.correct .m { background:#18b44b; color:#fff; border-color:#18b44b; }
+    .review-opt.wrong .m { background:#ef4444; color:#fff; border-color:#ef4444; }
+    .muted-text { color:var(--muted); }
+    .hide { display:none !important; }
+    .footer-note { margin-top:12px; color:var(--muted); font-size:12px; line-height:1.6; }
+    @media (max-width:720px) {
+      .title-xl { font-size:32px; }
+      .qtext { font-size:18px; }
+      .qcard { padding:16px; }
+      .panel { padding:16px; border-radius:28px; }
+      .brand h1 { font-size:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge">Q</div>
+        <div>
+          <h1>TRIẾT HỌC QUIZ</h1>
+          <p>3 màn hình: bắt đầu, trò chơi, kết thúc</p>
+        </div>
+      </div>
+      <div class="pill" id="saveState">Đã lưu tự động</div>
+    </div>
+
+    <section id="screenStart" class="screen active grid-start">
+      <div class="panel">
+        <h2 class="title-xl">QUIZ MASTER</h2>
+        <p class="subtitle">
+          Chọn một gói câu hỏi để bắt đầu. Câu hỏi đi đúng thứ tự trong PDF, đáp án lấy từ phần in đậm.
+          Ứng dụng tự lưu tiến độ để bạn quay lại đúng chỗ đang làm.
+        </p>
+        <div class="package-grid" id="packageGrid"></div>
+      </div>
+
+      <div class="sidebox">
+        <div class="card">
+          <div class="resume">
+            <div>
+              <div style="font-weight:900;font-size:18px">Tiếp tục bài đã lưu</div>
+              <div class="muted-text" style="font-size:13px;margin-top:4px">Quay lại đúng câu đang làm.</div>
+            </div>
+            <button id="resumeBtn" class="btn primary">Tiếp tục</button>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-weight:900;margin-bottom:6px">Tính năng</div>
+          <div class="muted-text" style="line-height:1.7;font-size:14px">
+            • Tô xanh khi đúng, đỏ khi sai, xám khi chưa làm<br>
+            • Xem lại câu đã làm ở màn hình kết thúc<br>
+            • Tự động lưu trạng thái vào trình duyệt<br>
+            • Hỗ trợ quay lại và làm lại câu hiện tại
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-weight:900;margin-bottom:8px">Gói câu hỏi</div>
+          <div class="footer-note">Mỗi gói sẽ tự lấy đúng số câu theo khoảng đã chọn, theo thứ tự trong file PDF.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenGame" class="screen grid-game">
+      <div class="panel game-shell">
+        <div class="game-top">
+          <button class="btn" id="backHomeBtn">← Trở lại</button>
+          <div class="center">
+            <div id="gamePackageTitle" style="font-weight:900;font-size:20px">Gói câu hỏi</div>
+            <div class="small" id="gameProgressLabel">Câu 1 / 50</div>
+          </div>
+          <button class="btn" id="finishBtn">Kết thúc</button>
+        </div>
+
+        <div class="energy">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+            <div style="font-weight:900">ENERGY</div>
+            <div class="small" id="energyCount">0 / 0 đã làm</div>
+          </div>
+          <div class="energy-line" id="energyLine"></div>
+        </div>
+
+        <div class="qcard">
+          <div class="qnum" id="questionNumber">Câu 1</div>
+          <div class="qtext" id="questionText"></div>
+          <div class="options" id="optionsBox"></div>
+          <div id="feedbackBox" class="hide"></div>
+          <div class="actions">
+            <button class="btn amber" id="redoBtn">↻ Làm lại câu này</button>
+            <button class="btn primary" id="prevBtn">← Trở lại</button>
+            <button class="btn green" id="nextBtn">Câu tiếp theo →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenFinish" class="screen grid-finish">
+      <div class="panel" style="display:grid;gap:16px">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <div style="width:58px;height:58px;border-radius:20px;display:grid;place-items:center;background:rgba(255,193,7,.15);color:#ffdb66;font-size:28px">🏆</div>
+          <div>
+            <div style="font-size:26px;font-weight:900">KẾT THÚC BÀI KIỂM TRA</div>
+            <div class="muted-text" id="finishPackageTitle">Gói câu hỏi</div>
+          </div>
+        </div>
+
+        <div class="score-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+            <div style="font-weight:900">Chọn một ô tròn để xem lại câu hỏi</div>
+            <div class="muted-text" id="finishCountLabel"></div>
+          </div>
+          <div class="score-grid" id="scoreGrid"></div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn purple" id="restartBtn">↻ Làm lại bài kiểm tra</button>
+          <button class="btn primary" id="homeBtn">🏠 Về màn hình bắt đầu</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="review" id="reviewBox">
+          <div style="color:#0c57d2;font-weight:900;font-size:14px" id="reviewQNumber">Câu 1</div>
+          <div class="review-head">
+            <div><div style="font-size:22px;font-weight:800;line-height:1.5" id="reviewQuestion"></div></div>
+            <div class="chip wait" id="reviewStatus">Chưa làm</div>
+          </div>
+          <div id="reviewOptions"></div>
+          <div style="margin-top:14px;padding:14px;border-radius:18px;background:#edf3ff;color:#30415f;line-height:1.7" id="reviewSummary">
+            Chọn một ô tròn bên trái để xem câu hỏi và đáp án đã chọn.
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const PACKAGES = [
+      {id:1,label:"Câu 1 - 50",start:1,end:50,shape:"square",a:"#f5b52e",b:"#ff7a45",demo:"50 câu"},
+      {id:2,label:"Câu 51 - 100",start:51,end:100,shape:"triangle",a:"#59e388",b:"#22c55e",demo:"50 câu"},
+      {id:3,label:"Câu 101 - 150",start:101,end:150,shape:"hexagon",a:"#cd78ff",b:"#8b5cf6",demo:"50 câu"},
+      {id:4,label:"Câu 151 - 200",start:151,end:200,shape:"rectangle",a:"#64c3ff",b:"#3b82f6",demo:"50 câu"},
+      {id:5,label:"Câu 201 - 270",start:201,end:270,shape:"diamond",a:"#ff88a5",b:"#ef4444",demo:"70 câu"}
+    ];
+    const QUESTION_BANK = [{"n":1,"q":"Theo C.Mác và Ph.Ănghen đối tượng nghiên cứu của kinh tế chính trị là?","o":["Các quan hệ của sản xuất và trao đổi trong phương thức sản xuất mà các quan hệ đó hình thành và phát triển","Các biểu hiện kỹ thuật của sản xuất và trao đổi của các các phương thức sản xuất nhất định","Các quan hệ thuộc một lĩnh vực, một khía cạnh của nền sản xuất xã hội","Các quan hệ kinh tế trong các lĩnh vực thương nghiệp, nông nghiệp, sản xuất công nghiệp"],"c":0},{"n":2,"q":"Đại biểu tiêu biểu của chủ nghĩa trọng nông ở Pháp là:","o":["F.Quesnay, Turgot","Dewey, Sartre","Camus, Bergson","Descartes, Diderot"],"c":0},{"n":3,"q":"Đại biểu tiêu biểu của kinh tế chính trị tư sản cổ điển Anh gồm:","o":["F.Quesnay, Turgot","W.Petty, A.Smith, D.Recardo","A.Camus, H.Bergson","R.Descartes, D.Diderot"],"c":1},{"n":4,"q":"Chủ nghĩa trọng thương hình thành phát triển trong giai đoạn nào?","o":["Từ giữa thế kỷ XV đến giữa thế kỷ XVII","Từ nửa thế kỷ XVII đến nửa đầu thế kỷ XVIII","Từ cuối thế kỷ XVIII đến nửa đầu thế kỷ XIX","Sự phát triển của chủ nghĩa tư bản trong thế kỷ XVIII"],"c":0},{"n":5,"q":"Mục đích chủ yếu của nghiên cứu kinh tế chính trị Mác - Lênin là gì?","o":["Nhằm xây dựng xã hội công bằng, dân chủ, văn minh","Nhằm khám phá các quy luật kinh tế chi phối các quan hệ giữa người với người trong sản xuất và trao đổi","Nhằm xây dựng nền văn hóa tiên tiến đậm đà bản sắc dân tộc","Nhằm xây dựng nhà nước pháp quyền xã hội chủ nghĩa"],"c":1},{"n":6,"q":"Lý luận “Kinh tế chính trị” của C.Mác và Ph.Ăngghen được thể hiện tập trung và cô đọng nhất trong tác phẩm nào dưới đây?","o":["Tuyên ngôn của đảng cộng sản","Gia đình thần thánh","Tư bản","Hệ tư tưởng Đức"],"c":2},{"n":7,"q":"Thuật ngữ khoa học “Kinh tế chính trị” xuất hiện lần đầu tiên trong tác phẩm nào dưới đây?","o":["Tư bản (C.Mác)","Chuyên luận về kinh tế chính trị (A.Montchretien)","Tình cảnh giai cấp công nhân Anh (Ph.Ăngghen)","Sự trỗi dậy và suy tàn của đế chế thứ ba (William L.Shirer)"],"c":1},{"n":8,"q":"Trong số các nhà kinh tế học dưới đây, ai là người có công lao làm cho kinh tế chính trị trở thành một môn khoa học?","o":["A.Smith","F.Quesnay","W. Petty","D.Ricardo"],"c":0},{"n":9,"q":"Chọn luận điểm đúng nhất trong các luận điểm sau đây:","o":["Chủ nghĩa trọng thương coi trọng vai trò của hoạt động thương mại","Chủ nghĩa trọng thương coi trọng vai trò của hoạt động nông nghiệp","Chủ nghĩa trọng thương coi trọng vai trò của hoạt động thương thuyết","Chủ nghĩa trọng thương bắt đầu từ thời kỳ Cổ đại đến cuối thế kỷ XV"],"c":0},{"n":10,"q":"Quy luật kinh tế là gì?","o":["Quy luật kinh tế là những mối liên hệ bản chất, khách quan, lặp đi lặp lại của sự vật hiện tượng với nhau","Quy luật kinh tế là những mối liên hệ bản chất, khách quan, lặp đi lặp lại của các hiện tượng và quá trình kinh tế","Quy luật kinh tế là những mối liên hệ tất nhiên, ổn định và phát triển bền vững của các chính sách kinh tế","Quy luật kinh tế là sản phẩm chủ quan của con người được hình thành trên cơ sở vận dụng các chính sách kinh tế"],"c":1},{"n":11,"q":"Các chức năng cơ bản của kinh tế chính trị Mác - Lênin gồm:","o":["Chức năng thế giới quan, chức năng nhân sinh quan, chức năng thực tiễn, chức năng phương pháp luận","Chức năng nhận thức, chức năng thực tiễn, chức năng tư tưởng, chức năng phương pháp luận","Chức năng xã hội, chức năng giáo dục, chức năng nhận thức, chức năng tư tưởng","Chức năng tâm lý, chức năng phương pháp luận, chức năng thực tiễn, chức năng giáo dục"],"c":1},{"n":12,"q":"Hệ thống lý luận chính trị đầu tiên nghiên cứu về phương thức sản xuất tư bản chủ nghĩa là:","o":["Chủ nghĩa thực dụng","Chủ nghĩa hiện sinh","Chủ nghĩa trọng nông","Chủ nghĩa trọng thương"],"c":3},{"n":13,"q":"Chọn ý đúng về kinh tế chính trị Mác - Lênin:","o":["Một trong ba bộ phận cấu thành của chủ nghĩa Mác - Lênin","Một trong ba tiền đề hình thành chủ nghĩa Mác - Lênin","Một trong ba nguồn gốc của chủ nghĩa Mác - Lênin","Một trong ba học thuyết quan trọng của chủ nghĩa Mác - Lênin"],"c":0},{"n":14,"q":"Ai là người đầu tiên đưa ra khái niệm “Kinh tế chính trị”?","o":["Autoine de Montchretien","Francois Quesney","Tomas Mun","William Petty"],"c":0},{"n":15,"q":"Ai là người được coi là nhà kinh tế thời kỳ công trường thủ công?","o":["W.Petty","A.Smith","D.Ricardo","R.T.Mathus"],"c":1},{"n":16,"q":"D.Ricardo là nhà kinh tế của thời kỳ nào?","o":["Thời kỳ tích luỹ nguyên thuỷ tư bản chủ nghĩa","Thời kỳ hiệp tác giản đơn","Thời kỳ công trường thủ công","Thời kỳ đại công nghiệp cơ khí"],"c":3},{"n":17,"q":"Kinh tế chính trị Mác - Lênin đã kế thừa và phát triển trực tiếp những thành tựu của:","o":["Chủ nghĩa trọng thương","Chủ nghĩa trọng nông","Kinh tế chính trị cổ điển Anh","Học thuyết công lợi"],"c":2},{"n":18,"q":"Phương pháp trừu tượng hóa khoa học là:","o":["Gạt bỏ những bộ phận phức tạp của đối tượng nghiên cứu, giữ lại những gì đơn giản, dễ hiểu","Quá trình đi từ cụ thể đến trừu tượng và ngược lại","Gạt bỏ những hiện tượng ngẫu nhiên, bề ngoài, chỉ giữ lại những mối liên hệ phổ biến mang tính bản chất","Gạt bỏ những hiện tượng ngẫu nhiên, bề ngoài, chỉ giữ lại những mối liên hệ phổ biến mang tính bản chất, là quá trình đi từ cái cụ thể đến trừu tượng và ngược lại"],"c":3},{"n":19,"q":"Thuật ngữ “Kinh tế chính trị” được sử dụng lần đầu tiên vào năm nào?","o":["1610","1612","1615","1618"],"c":2},{"n":20,"q":"Hãy chọn phương án đúng nhất về đặc điểm của quy luật kinh tế:","o":["Mang tính khách quan và phát huy tác dụng thông qua hoạt động kinh tế của con người","Mang tính chủ quan, hoàn toàn phụ thuộc vào ý thức của những người làm kinh tế","Mang tính tuyệt đối, tính phổ biến và toàn diện","Mang tính cụ thể, tính tương đối và tuyệt đối"],"c":0},{"n":21,"q":"Trong các khâu của quá trình tái sản xuất, khâu nào là mục đích và là động lực?","o":["Sản xuất","Phân phối","Trao đổi","Tiêu dùng"],"c":0},{"n":22,"q":"Nhận xét nào dưới đây về phương pháp sản xuất giá trị thặng dư tuyệt đối là không đúng?","o":["Chủ yếu áp dụng ở giai đoạn đầu của chủ nghĩa tư bản khi kỹ thuật còn mang tính thủ công, lạc hậu","Giá trị sức lao động không thay đổi","Thời gian lao động trong một ngày không thay đổi","Thời gian lao động thặng dư thay đổi"],"c":2},{"n":23,"q":"Tiền công danh nghĩa không phụ thuộc vào các yếu tố nào?","o":["Trình độ chuyên môn và kinh nghiệm của người lao động","Mức độ phức tạp hay giản đơn của công việc","Quan hệ cung cầu về hàng hóa sức lao động","Giá trị của các loại hàng hóa trên thị trường"],"c":3},{"n":24,"q":"Trong các yếu tố dưới đây, yếu tố nào không thuộc phạm trù tư bản bất biến?","o":["Máy móc, thiết bị, nhà xưởng","Tiền lương, tiền thưởng","Kết cấu hạ tầng sản xuất","Nguyên, nhiên vật liệu"],"c":1},{"n":25,"q":"Yếu tố nào trong quá trình sản xuất và lưu thông hàng hóa đã làm tăng thêm giá trị của hàng hóa?","o":["Tư liệu sản xuất","Sức lao động","Tài kinh doanh của thương nhân","Sự khan hiếm của hàng hóa"],"c":1},{"n":26,"q":"Giá trị sử dụng của hàng hóa sức lao động, khi sử dụng sẽ tạo ra:","o":["Giá trị mới bằng giá trị sức lao động","Giá trị mới lớn hơn giá trị sức lao động","Giá trị mới nhỏ hơn giá trị sức lao động","Giá trị sử dụng mới lớn hơn giá trị sử dụng sức lao động"],"c":1},{"n":27,"q":"Tiền công tính theo thời gian và tiền công tính theo sản phẩm có quan hệ với nhau như thế nào?","o":["Hai hình thức tiền công không có quan hệ gì","Hai hình thức tiền công áp dụng cho các loại công việc có đặc điểm khác nhau.","Trả công theo sản phẩm dễ quản lý hơn trả công theo thời gian","Tiền công tính theo sản phẩm là hình thức chuyển hóa của tiền công tính theo thời gian"],"c":3},{"n":28,"q":"Thực chất của tích lũy tư bản là gì?","o":["Biến sức lao động thành tư bản","Biến toàn bộ giá trị mới thành tư bản","Biến một phần giá trị thặng dư thành tư bản","Biến giá trị thặng dư thành tiền đưa vào tích lũy"],"c":2},{"n":29,"q":"Tập trung tư bản là gì?","o":["Là tập trung mọi nguồn vốn để tích lũy","Tăng quy mô tư bản cá biệt bằng cách tư bản hóa một phần giá trị thặng dư","Là tăng quy mô tư bản cá biệt bằng cách hợp nhất nhiều tư bản cá biệt có sẵn thành tư bản cá biệt khác lớn hơn","Là tăng quy mô tư bản cá biệt bằng cách tư bản hóa toàn bộ giá trị thặng dư"],"c":2},{"n":30,"q":"Cấu tạo hữu cơ của tư bản là gì?","o":["Là cấu tạo tư bản xét về lượng giữa tư liệu sản xuất và sức lao động sử dụng tư liệu sản xuất","Là cấu tạo kỹ thuật của tư bản phản ánh cấu tạo giá trị của tư bản và do cấu tạo giá trị quyết định","Là cấu tạo giá trị của tư bản phản ánh sự biến đổi của cấu tạo kỹ thuật của tư bản và do cấu tạo kỹ thuật quyết định","Là cấu tạo tư bản mà các bộ phận của nó có quan hệ gắn bó hữu cơ với nhau"],"c":2},{"n":31,"q":"Hình thức nào không phải biểu hiện của giá trị thặng dư?","o":["Lợi nhuận","Lợi tức","Địa tô","Tiền lương"],"c":3},{"n":32,"q":"Điểm giống nhau giữa địa tô tư bản chủ nghĩa với địa tô phong kiến là gì? Chọn phương án đúng nhất","o":["Cả hai loại địa tô đều là toàn bộ giá trị thặng dư do nông dân tạo ra","Cả hai loại địa tô đều là kết quả của sự bóc lột đối với những người lao động trong nông nghiệp","Đều phản ánh mối quan hệ giữa giai cấp địa chủ và những người lao động nông nghiệp","Cả hai loại địa tô đều chỉ là một phần giá trị thặng dư do nông dân tạo ra"],"c":1},{"n":33,"q":"Bản chất của lợi nhuận thương nghiệp trong chủ nghĩa tư bản là gì?","o":["Là số tiền lời do nhà tư bản mua rẻ bán đắt mà có","Là một phần giá trị thặng dư do tư bản sản xuất trả cho tư bản thương nghiệp vì họ đã tiêu thụ hàng hóa cho mình","Là tiền công lao động do thương nhân công nghiệp tạo ra","Là kết quả của quá trình trao đổi không ngang giá"],"c":1},{"n":34,"q":"Lợi nhuận bình quân phụ thuộc trực tiếp vào chi phí sản xuất và yếu tố nào?","o":["Tỷ suất lợi nhuận bình quân","Tỷ suất lợi nhuận","Tỷ suất giá trị thặng dư","Tỷ suất lợi tức"],"c":0},{"n":35,"q":"Giá trị thặng dư được tạo ra ở đâu?","o":["Trong lưu thông","Trong sản xuất","Vừa trong sản xuất vừa trong lưu thông","Trong trao đổi"],"c":2},{"n":36,"q":"Tỷ suất lợi nhuận là gì?","o":["Là tỷ số tính theo phần trăm giữa giá trị thặng dư và toàn bộ tư bản khả biến","Là tỷ số tính theo phần trăm giữa tỷ suất lợi nhuận và toàn bộ tư bản bất biến","Là tỷ số tính theo phần trăm giữa lợi nhuận và toàn bộ giá trị của tư bản ứng trước","Là tỷ số tính theo phần trăm giữa giá trị thặng dư và toàn bộ tư bản cố định"],"c":2},{"n":37,"q":"Vì sao hàng hóa có hai thuộc tính là giá trị và giá trị sử dụng?","o":["Vì lao động sản xuất hàng hóa có tính chất hai mặt: Lao động cụ thể và lao động trừu tượng","Vì hoạt động sản xuất hàng hóa mang tính giản đơn","Vì hàng hóa được đem ra trao đổi, mua bán trên thị trường","Vì hàng hóa là sản phẩm lao động của con người và để đáp ứng nhu cầu của con người"],"c":0},{"n":38,"q":"Chọn câu trả lời sai:","o":["Lao động cụ thể tạo ra giá trị sử dụng của hàng hóa","Lao động cụ thể không phải là nguồn gốc duy nhất của giá trị sử dụng do nó sản xuất ra","Lao động trừu tượng tạo ra giá trị","Lao động cụ thể và lao động trừu tượng không tạo ra giá trị"],"c":3},{"n":39,"q":"Nhân tố nào sau đây không ảnh hưởng đến lượng giá trị hàng hóa?","o":["Năng suất lao động, cường độ lao động","Mức độ phức tạp của lao động","Yếu tố cung cầu trên thị trường","Cạnh tranh giữa những nhà sản xuất"],"c":3},{"n":40,"q":"Chọn câu trả lời đúng. Qui luật giá trị có yêu cầu gì?","o":["Sản xuất và trao đổi hàng hóa phải dựa trên cơ sở hao phí lao động xã hội, lưu thông hàng hóa phải dựa trên nguyên tắc ngang giá","Phải điều chỉnh sao cho hao phí lao động cá biệt tương xứng với hao phí lao động xã hội","Phải điều tiết quá trình sản xuất và lưu thông hàng hóa","Phải cải tiến kỹ thuật, hợp lý hóa sản xuất, tăng năng suất lao động"],"c":0},{"n":41,"q":"Lịch sử phát triển của nền sản xuất xã hội trải qua hai kiểu tổ chức kinh tế nào?","o":["Sản xuất giá trị thặng dư và sản xuất tự cung tự cấp","Sản xuất tự cung tự cấp và sản xuất hàng hóa","Sản xuất giá trị thặng dư và sản xuất hàng hóa","Kinh tế tư nhân và kinh tế tập thể"],"c":1},{"n":42,"q":"Tiền tệ có mấy chức năng?","o":["5","7","6","8"],"c":0},{"n":43,"q":"Quy luật kinh tế cơ bản của sản xuất và trao đổi hàng hoá là quy luật nào?","o":["Quy luật cung - cầu","Quy luật cạnh tranh","Quy luật giá trị","Quy luật lưu thông tiền tệ"],"c":2},{"n":44,"q":"Ngoài phân công lao động xã hội, sự ra đời của sản xuất hàng hoá còn dựa trên điều kiện nào?","o":["Quá trình trao đổi hàng hoá để đáp ứng nhu cầu của nhiều người","Khoa học kỹ thuật ngày càng phát triển mạnh mẽ","Sự tách biệt tương đối về mặt kinh tế giữa các chủ thể sản xuất hàng hoá","Chế độ tư bản chủ nghĩa ra đời"],"c":2},{"n":45,"q":"Câu trả lời nào sau đây không đúng về bản chất của tiền tệ?","o":["Là hàng hóa đặc biệt, được tách ra từ thế giới hàng hóa","Tiền dùng làm vật ngang giá chung cho các hàng hóa khác","Phản ánh quan hệ kinh tế giữa những người sản xuất hàng hóa với nhau","Là yếu tố quyết định giá trị thặng dư"],"c":3},{"n":46,"q":"Yếu tố quyết định đến giá cả hàng hoá là:","o":["Giá trị của hàng hoá","Quan hệ cung cầu về hàng hoá","Giá trị sử dụng của hàng hoá","Mẫu mã của hàng hoá"],"c":0},{"n":47,"q":"Hãy điền vào chỗ trống sau để hoàn thành luận điểm của C.Mác: “Chỉ có sản phẩm của những người lao động tư nhân độc lập và không phụ thuộc vào nhau mới đối diện với nhau như là những (.…)”","o":["Con người","Hàng hóa","Vật phẩm","Đồ vật"],"c":1},{"n":48,"q":"Giá trị sử dụng là:","o":["Một trong hai thuộc tính cơ bản của hàng hóa","Giá trị trao đổi","Giá trị","Giá trị thặng dư"],"c":0},{"n":49,"q":"Lý luận giá trị thặng dư của C.Mác được trình bày cô đọng nhất trong tác phẩm nào?","o":["Hệ tư tưởng Đức","Gia đình thần thánh","Tư bản","Góp phần phê phán khoa kinh tế chính trị"],"c":2},{"n":50,"q":"Chọn phương án đúng nhất về sản xuất hàng hóa:","o":["Là sản xuất ra sản phẩm đáp ứng nhu cầu của người khác thông qua trao đổi, mua bán","Là sản xuất ra sản phẩm có ích cho mọi người","Là sản xuất ra sản phẩm nhằm thỏa mãn nhu cầu cho người sản xuất","Là sản xuất ra sản phẩm có giá trị sử dụng cao"],"c":0},{"n":51,"q":"Sản xuất hàng hóa ra đời, tồn tại trong điều kiện nào sau đây?","o":["Xuất hiện giai cấp tư sản","Có sự tách biệt tuyệt đối về kinh tế giữa những người sản xuất","Xuất hiện sự phân công lao động xã hội và có sự tách biệt tương đối về kinh tế giữa những người sản xuất","Xuất hiện chế độ tư hữu tư nhân về tư liệu sản xuất"],"c":2},{"n":52,"q":"Mệnh đề nào dưới đây không phải là đặc trưng của sản xuất hàng hóa?","o":["Sản xuất được chuyên môn hóa ngày càng cao","Thị trường ngày càng mở rộng","Liên hệ giữa các ngành, các vùng, các nước ngày càng chặt chẽ","Sản phẩm làm ra nhằm thỏa mãn nhu cầu người sản xuất"],"c":3},{"n":53,"q":"Đâu không phải ưu thế của sản xuất hàng hóa?","o":["Sự gia tăng không hạn chế của thị trường là động lực mạnh mẽ thúc đẩy sản xuất phát triển","Cạnh tranh là động lực thúc đẩy việc cải tiến kỹ thuật, tăng năng suất lao động","Giao lưu kinh tế và văn hóa trong nước và quốc tế ngày càng phát triển","Phân hóa giàu - nghèo"],"c":3},{"n":54,"q":"Hàng hóa là gì? Chọn phương án đúng nhất","o":["Là sản phẩm của lao động có thể thỏa mãn nhu cầu nào đó của con người thông qua trao đổi, mua bán","Là những sản phẩm có thể thỏa mãn được nhu cầu nào đó của con người","Là mọi sản phẩm thỏa mãn nhu cầu của con người","Là sản phẩm có sẳn trong tự nhiên và xã hội"],"c":0},{"n":55,"q":"Chọn phương án sai về giá trị sử dụng của hàng hóa?","o":["Là tính chất có ích, công dụng của vật thể đó có thể thỏa mãn một nhu cầu nào đó của người mua","Là nội dung vật chất của của cải không kể hình thức xã hội của nó như thế nào","Là giá trị sử dụng cho người mua, cho xã hội","Là hao phí lao động xã hội cần thiết để sản xuất ra hàng hóa"],"c":3},{"n":56,"q":"Yếu tố nào được xác định là thực thể của giá trị hàng hóa?","o":["Lao động cụ thể","Lao động trừu trượng","Lao động giản đơn","Lao động phức tạp"],"c":0},{"n":57,"q":"Giá trị hàng hóa được tạo ra từ đâu?","o":["Từ sản xuất hàng hóa","Từ phân phối hàng hóa","Từ trao đổi hàng hóa","Từ hưởng thụ vật phẩm"],"c":0},{"n":58,"q":"Lao động trừu tượng là gì?","o":["Là lao động không xác định được kết quả cụ thể","Là lao động của người sản xuất hàng hóa xét dưới hình thức hao phí sức lực nói chung của con người, không kể đến hình thức cụ thể của nó như thế nào","Là lao động của những người sản xuất nói chung","Các phương án được nêu đều đúng"],"c":1},{"n":59,"q":"Ai là người phát hiện ra tính chất hai mặt của lao động sản xuất hàng hóa?","o":["A.Smith","D.Ricardo","C.Mác","Ph.Ăngghen"],"c":2},{"n":60,"q":"Chọn phương án sai về lao động phức tạp?","o":["Trong cùng một thời gian lao động, lao động phức tạp tạo ra nhiều sản phẩm hơn lao động giản đơn","Lao động phức tạp là lao động giản đơn nhân đôi","Lao động phức tạp là lao động trong môi trường đặc biệt","Lao động phức tạp là lao động trải qua đào tạo, huấn luyện"],"c":1},{"n":61,"q":"Tác động của yếu tố nào dưới đây làm thay đổi lượng giá trị của một đơn vị sản phẩm?","o":["Cường độ lao động","Năng suất lao động","Đối tượng lao động","Công cụ lao động"],"c":1},{"n":62,"q":"Thước đo lượng giá trị của hàng hóa được tính bằng yếu tố nào?","o":["Thời gian lao động cá biệt của người sản xuất","Thời gian lao động xã hội cần thiết để sản xuất ra hàng hóa","Thời gian lao động của người có năng suất lao động thấp trong xã hội","Thời gian lao động của người có cường độ lao động trung bình trong xã hội"],"c":1},{"n":63,"q":"Giá trị cá biệt của hàng hóa do yếu tố nào quyết định?","o":["Hao phí lao động cần thiết quyết định","Hao phí lao động của ngành quyết định","Hao phí lao động cá biệt của người sản xuất quyết định","Hao phí lao động xã hội cần thiết quyết định"],"c":2},{"n":64,"q":"Năng suất lao động nào ảnh hưởng đến lượng giá trị của hàng hóa? Chọn phương án đúng nhất","o":["Năng suất lao động cá biệt","Năng suất lao động xã hội","Năng suất lao động của những người sản xuất hàng hóa","Năng suất lao động cá biệt và năng suất lao động xã hội"],"c":3},{"n":65,"q":"Tăng cường độ lao động nghĩa là gì? Chọn phương án sai","o":["Lao động khẩn trương hơn","Lao động nặng nhọc hơn","Rút ngắn thời gian lao động cần thiết","Thời gian lao động được phân bổ hợp lý hơn"],"c":3},{"n":66,"q":"Giá cả hàng hóa là gì?","o":["Giá trị của hàng hóa","Quan hệ về lượng giữa hàng và tiền","Tổng của chi phí sản xuất và lợi nhuận","Biểu hiện bằng tiền của giá trị hàng hóa"],"c":3},{"n":67,"q":"Nhân tố nào sau đây không ảnh hưởng đến giá cả hàng hóa?","o":["Quan hệ cung cầu về hàng hóa trên thị trường","Sức mua của tiền, tình trạng độc quyền","Giá trị hàng hóa","Kim loại dùng làm tiền tệ"],"c":3},{"n":68,"q":"Trong mối quan hệ giữa giá cả và giá trị của hàng hóa thì:","o":["Giá cả là cơ sở của giá trị","Giá trị là cơ sở của giá cả","Giá trị xoay xung quanh trục giá cả","Giá cả không tác động gì đến giá trị"],"c":1},{"n":69,"q":"Trong lịch sử phát triển của nền sản xuất hàng hóa có mấy hình thái giá trị?","o":["Có 2 hình thái","Có 3 hình thái","Có 4 hình thái","Có 5 hình thái"],"c":2},{"n":70,"q":"Sự phát triển các hình thái giá trị trong nền kinh tế hàng hóa biểu hiện thông qua những hình thái cụ thể nào sau đây? Chọn phương án sai","o":["Hình thái giá trị giản đơn hay ngẫu nhiên","Hình thái giá trị đầy đủ hay mở rộng","Hình thái chung của giá trị và hình thái tiền tệ","Hình thái biểu hiện tương đối của giá trị sử dụng"],"c":3},{"n":71,"q":"Trong hình thái giản đơn, ngẫu nhiên của giá trị “Ví dụ: 1m vải = 10 kg lúa” theo Mác thì: “1m vải” đóng vai trò gì trong trao đổi?","o":["Hình thái biểu hiện tương đối của giá trị sử dụng","Hình thái vật ngang giá cho trao đổi","Hình thái vật ngang giá chung","Hình thái biểu hiện tương đối của giá trị"],"c":1},{"n":72,"q":"Bản chất của tiền tệ là gì?","o":["Là thước đo giá trị của hàng hóa","Là phương tiện để lưu thông hàng hóa và để thanh toán","Là hàng hóa đặc biệt đóng vai trò là vật ngang giá chung thống nhất","Là vàng, bạc"],"c":2},{"n":73,"q":"Mệnh đề nào sau đây không phải bản chất của tiền tệ?","o":["Tiền thể hiện lao động xã hội và quan hệ giữa những người sản xuất hàng hóa.","Tiền là hàng hóa đặc biệt được tách ra từ trong thế giới hàng hóa làm vật ngang giá chung cho cả thế giới hàng hóa","Tiền là hình thái biểu hiện cao nhất của giá trị hàng hóa","Tiền là thước đo giá trị hàng hóa"],"c":2},{"n":74,"q":"Tiền làm phương tiện lưu thông biểu hiện như thế nào?","o":["Tiền là thước đo giá trị của hàng hóa","Tiền dùng để trả nợ, nộp thuế","Tiền là môi giới trong quá trình trao đổi hàng hóa","Tiền dùng để trả khoản mua chịu hàng hóa"],"c":2},{"n":75,"q":"Trong phương pháp sản xuất giá trị thặng dư tuyệt đối, người lao động muốn giảm thời gian lao động trong ngày còn nhà đầu tư lại muốn kéo dài thời gian lao động trong ngày, giới hạn tối thiểu của ngày lao động là bao nhiêu?","o":["Đủ bù đắp giá trị sức lao động của công nhân","Bằng thời gian lao động cần thiết","Do nhà tư bản quy định","Lớn hơn thời gian lao động cần thiết"],"c":3},{"n":76,"q":"Mệnh đề nào không thuộc nội dung của quy luật giá trị?","o":["Sản xuất hàng hóa phải dựa trên cơ sở hao phí lao động xã hội cần thiết","Trao đổi hàng hóa phải dựa trên cơ sở ngang giá","Sự vận động của quy luật giá trị thông qua sự vận động của giá cả hàng hóa","Tác động đến luồng vận chuyển của hàng hóa từ nơi giá thấp đến nơi giá cao"],"c":3},{"n":77,"q":"Mệnh đề nào sau đây không phải là tác động của quy luật giá trị?","o":["Điều tiết sản xuất và lưu thông hàng hóa","Cải tiến kỹ thuật, hợp lý hóa sản xuất, tăng năng suất lao động, thúc đẩy lực lượng sản xuất phát triển","Thực hiện lựa chọn tự nhiên và phân hóa giàu nghèo","Giảm bớt chênh lệch về mức sống giữa các tầng lớp dân cư"],"c":3},{"n":78,"q":"Quy luật giá trị hoạt động thông qua cái gì?","o":["Sự vận động của giá cả hàng hóa trên thị trường","Sự vận động của quan hệ cung - cầu","Sự biến động của tiền tệ","Sự điều chỉnh hoạt động của người sản xuất kinh doanh"],"c":0},{"n":79,"q":"Loại tư bản nào tồn tại dưới hình thái tư liệu sản xuất mà giá trị được lao động cụ thể của công nhân làm thuê bảo tồn và chuyển nguyên vẹn vào giá trị sản phẩm?","o":["Tư bản bất biến","Tư bản khả biến","Tư bản cố định","Tư bản lưu động"],"c":0},{"n":80,"q":"Chọn phương án đúng về tiền công?","o":["Tiền công là giá cả của lao động","Tiền công biểu hiện đúng giá trị sức lao động","Tiền công là giá cả hàng hóa sức lao động","Tiền công biểu hiện giá cả của những tư liệu sinh hoạt"],"c":2},{"n":81,"q":"Bản chất của tích lũy tư bản là gì?","o":["Tích lũy tư bản là tăng số lượng công nhân trong một chu trình sản xuất","Tích lũy tư bản là chuyển kết quả sản xuất thành tài sản riêng của nhà tư bản","Tích lũy tư bản là tập trung tư bản nhằm mở rộng sản xuất","Tích lũy tư bản là tư bản hóa giá trị thặng dư"],"c":3},{"n":82,"q":"Điểm giống nhau giữa phương pháp sản xuất giá trị thặng dư tuyệt đối và phương pháp sản xuất giá trị thặng dư tương đối là?","o":["Đều làm tăng tỷ suất giá trị thặng dư","Đều làm giảm khối lượng giá trị thặng dư","Đều làm tăng thời gian lao động tất yếu","Đều giảm thời gian lao động thặng dư"],"c":0},{"n":83,"q":"Phương pháp phổ biến để tạo ra giá trị thặng dư siêu ngạch là?","o":["Tăng năng suất lao động xã hội","Tăng năng suất lao động cá biệt","Sản xuất ngày càng nhiều của cải vật chất","Làm cho lao động ngày càng lệ thuộc vào tư bản"],"c":1},{"n":84,"q":"Nhân tố nào không làm tăng quy mô tích lũy tư bản?","o":["Nâng cao tỷ suất giá trị thặng dư","Nâng cao năng suất lao động","Sử dụng hiệu quả máy móc","Nâng cao giá trị sức lao động"],"c":3},{"n":85,"q":"Bộ phận tư bản tồn tại dưới hình thái sức lao động, nguyên nhiên vật liệu, vật liệu phụ, giá trị của nó được chuyển một lần, toàn phần vào giá trị sản phẩm khi kết thúc từng quá trình sản xuất gọi là:","o":["Tư bản cố định","Tư bản lưu động","Tư bản bất biến","Tư bản khả biến"],"c":1},{"n":86,"q":"Điểm khác nhau căn bản giữa tư bản bất biến và tư bản khả biến là?","o":["Tư bản bất biến tạo ra nhiều giá trị thặng dư hơn tư bản khả biến","Tư bản bất biến tạo ra giá trị mới, tư bản khả biến không tạo ra giá trị mới","Tư bản khả biến tạo ra giá trị sử dụng, tư bản khả biến tạo ra giá trị thặng dư","Tư bản bất biến không tạo ra giá trị thặng dư, tư bản khả biến thông qua lao động trừu tượng của công nhân, tạo ra giá trị thặng dư"],"c":3},{"n":87,"q":"Theo chủ nghĩa Mác, việc phân chia tư bản thành tư bản bất biến và tư bản khả biến nhằm:","o":["Tìm hiểu quá trình di chuyển tư bản vào trong từng loại sản phẩm","Xác định vai trò của lao động quá khứ và lao động sống trong sản xuất tư bản chủ nghĩa","Để hình thành giá cả thị trường","Xác định nguồn gốc tạo ra giá trị thặng dư"],"c":3},{"n":88,"q":"Công thức tính khối lượng giá trị thặng dư là:","o":["M = m’.V","M = m.v","M = m’.v","M = (m’.V) : x"],"c":0},{"n":89,"q":"Trong nền kinh tế thị trường tư bản chủ nghĩa, giá cả sản xuất có vai trò gì?","o":["Điều tiết giá cả thị trường","Điều tiết lợi nhuận","Xác định tỷ suất giá trị thặng dư","Xác định quy mô tích lũy tư bản"],"c":0},{"n":90,"q":"Căn cứ vào phương thức chuyển giá trị của từng bộ phận tư bản, tư bản sản xuất gồm:","o":["Tư bản bất biến và tư bản ứng trước","Tư bản cho vay và tư bản hàng hóa","Tư bản tiền tệ và tư bản lưu thông","Tư bản cố định và tư bản lưu động"],"c":3},{"n":91,"q":"Một trong những hình thức biểu hiện của giá trị thặng dư trong nền kinh tế thị trường là?","o":["Lợi nhuận","Lợi ích","Độc quyền","Giá cả"],"c":0},{"n":92,"q":"Thực chất của tư bản là gì?","o":["Là giá trị mang lại giá trị thặng dư bằng cách bóc lột lao động không công của công nhân làm thuê","Là toàn bộ số tiền của nhà tư bản có được","Là toàn bộ tư liệu sản xuất của xã hội","Là toàn bộ tư bản trả cho lao động làm thuê"],"c":0},{"n":93,"q":"Nguồn gốc duy nhất của tích lũy tư bản là:","o":["Tiết kiệm","Giá trị thặng dư","Bán hàng hóa cao hơn giá trị","Sử dụng hiệu quả máy móc"],"c":1},{"n":94,"q":"Tìm hiểu nội dung nào sau đây để hiểu về cách thức sử dụng giá trị thặng dư trong chủ nghĩa tư bản?","o":["Tuần hoàn tư bản","Tích lũy tư bản","Tái sản xuất","Chu chuyển tư bản"],"c":1},{"n":95,"q":"Tiền công danh nghĩa là gì?","o":["Là số tiền mà người công nhân nhận được do bán sức lao động của mình cho nhà tư bản","Là số tiền được biểu hiện bằng số lượng hàng hóa tiêu dùng và dịch vụ mà người công nhân mua được","Là giá cả của lao động, biến động theo quan hệ cung cầu về lao động trên thị trường","Các phương án được nêu đều đúng"],"c":0},{"n":96,"q":"Công thức chung của Tư bản là :","o":["T - H’ - T","T - T - H’","T - H - T’","H - T’- H"],"c":2},{"n":97,"q":"Chủ nghĩa tư bản thực hiện mấy phương pháp chủ yếu để sản xuất giá trị thặng dư?","o":["Hai","Ba","Bốn","Năm"],"c":0},{"n":98,"q":"Nhận xét nào dưới đây là đúng về tỷ suất giá trị thặng dư?","o":["Tỷ suất giá trị thặng dư phản ánh trình độ bóc lột của nhà tư bản đối với lao động làm thuê","Tỷ suất giá trị thặng dư phản ánh hiệu quả của đầu tư","Tỷ suất giá trị thặng dư phản ánh quy mô của sản xuất","Tỷ suất giá trị thặng dư phản ánh quy mô bóc lột của nhà tư bản"],"c":0},{"n":99,"q":"Đặc điểm nào dưới đây thuộc phạm trù giá trị thặng dư tuyệt đối?","o":["Kéo dài ngày lao động còn thời gian lao động tất yếu không đổi","Sử dụng kỹ thuật tiên tiến, cải tiến tổ chức quản lý","Rút ngắn thời gian lao động tất yếu","Tăng năng suất lao động cá biệt làm cho giá trị cá biệt thấp hơn giá trị thị trường"],"c":0},{"n":100,"q":"Chọn câu trả lời sai:","o":["Tái sản xuất giản đơn là đặc trưng của nền sản xuất nhỏ","Tái sản xuất giản đơn là sản xuất với nguồn vốn ít, năng suất lao động cao","Tái sản xuất mở rộng là đặc trưng của nền sản xuất lớn","Giá trị thặng dư là nguồn gốc của tái sản xuất mở rộng"],"c":1},{"n":101,"q":"Để làm rõ bản chất của lợi nhuận, C.Mác bắt đầu phân tích, làm rõ yếu tố nào sau đây?","o":["Hàng hóa sức lao động","Xuất khẩu tư bản","Chi phí sản xuất","Lợi tức"],"c":2},{"n":102,"q":"Hoàn thành luận điểm sau: Chi phí sản xuất tư bản chủ nghĩa là phần giá trị hàng hóa, bù lại giá cả của những tư liệu sản xuất đã tiêu dùng và giá cả của…đã được sử dụng để sản xuất ra hàng hóa ấy","o":["Sức lao động","Tư liệu sinh hoạt","Tư liệu sản xuất","Chi phí sản xuất"],"c":0},{"n":103,"q":"Chi phí sản xuất được ký hiệu là gì?","o":["m","v","c","k"],"c":3},{"n":104,"q":"Vai trò của tư bản bất biến trong quá trình tạo ra giá trị thặng dư, chọn ý đúng nhất:","o":["Tư bản bất biến là nguồn gốc của giá trị thặng dư","Tư bản bất biến là tiền đề vật chất cho việc tạo ra giá trị thặng dư","Tư bản bất biến và sức lao động đều tạo ra giá trị thặng dư","Tư bản bất biến là yếu tố quyết định để tạo ra giá trị thặng dư"],"c":1},{"n":105,"q":"Tiền công thực tế là gì?","o":["Là tổng số tiền mà người lao động nhận được trong một đơn vị thời gian","Là tổng số tiền lương, thưởng và các khoản thu nhập khác của người lao động","Là số lượng hàng hoá và dịch vụ mua được bằng tiền công danh nghĩa","Là số tiền mà người lao động thu được sau lao động"],"c":2},{"n":106,"q":"Tốc độ chu chuyển của tư bản là gì?","o":["Là số lần chu chuyển tư bản trong một năm","Là số lần chu chuyển của tư bản bất biến","Là số lần chu chuyển của tư bản khả biến","Là số lần chu chuyển của tư bản ứng trước"],"c":0},{"n":107,"q":"Căn cứ vào đâu để chia tư bản thành tư bản bất biến và tư bản khả biến?","o":["Tốc độ chu chuyển của tư bản","Tuần hoàn tư bản","Vai trò của các bộ phận tư bản trong quá trình sản xuất giá trị thặng dư","Phương thức chuyển giá trị của các bộ phận tư bản sang sản phẩm"],"c":2},{"n":108,"q":"Tích tụ tư bản và tập trung tư bản giống nhau ở chổ:","o":["Có nguồn gốc trực tiếp giống nhau","Có vai trò quan trọng như nhau","Đều là tăng quy mô tư bản cá biệt","Đều là tăng quy mô tư bản xã hội"],"c":2},{"n":109,"q":"Lợi nhuận được ký hiệu là?","o":["k","p","v","c"],"c":1},{"n":110,"q":"Xác định đúng trình tự các khâu của quá trình tái sản xuất:","o":["Sản xuất - trao đổi - phân phối - tiêu dùng","Sản xuất - phân phối - trao đổi - tiêu dùng","Phân phối - trao đổi - sản xuất - tiêu dùng","Trao đổi - tiêu dùng - phân phối - sản xuất"],"c":1},{"n":111,"q":"Chọn phương án sai về hàng hóa sức lao động:","o":["Tồn tại trong người lao động","Có thể mua bán nhiều lần","Chỉ có giá trị sử dụng, không có giá trị","Có khả năng tạo ra giá trị mới"],"c":2},{"n":112,"q":"Trong các luận điểm dưới đây, luận điểm nào không đúng?","o":["Chia tư bản thành tư bản bất biến và tư bản khả biến là để biết nguồn gốc giá trị thặng dư","Chia tư bản thành tư bản cố định và tư bản lưu động để biết phương thức chuyển giá trị của chúng sang sản phẩm","Tư bản cố định cũng là tư bản bất biến, tư bản lưu động cũng là tư bản khả biến","Tư bản bất biến là điều kiện, tư bản khả biến là nguồn gốc tạo ra giá trị thặng dư"],"c":2},{"n":113,"q":"Chọn phương án đúng:","o":["Lợi nhuận là hình thái biểu hiện của giá trị thặng dư trên bền mặt nền kinh tế thị trường","Lợi nhuận và giá trị thặng dư luôn bằng nhau","Lợi nhuận và giá trị thặng dư phụ thuộc vào quan hệ cung cầu","Các phương án được nêu đều đúng"],"c":0},{"n":114,"q":"Hoàn thành luận điểm sau: Giá trị thặng dư là bộ phận giá trị mới dôi ra ngoài giá trị sức lao động, do người bán …tạo ra và thuộc về nhà tư bản","o":["Sức lao động","Lao động","Hàng hóa","Sản phẩm"],"c":0},{"n":115,"q":"Chọn ý sai về lao động và sức lao động:","o":["Sức lao động chỉ là khả năng, còn lao động là sức lao động đã được tiêu dùng","Sức lao động là hàng hoá, còn lao động không là hàng hoá","Sức lao động có giá trị, còn lao động không có giá trị","Tiền công trả cho lao động chứ không phải trả cho sức lao động"],"c":3},{"n":116,"q":"Loại tư bản nào tồn tại dưới hình thái sức lao động, có ký hiệu là v?","o":["Tư bản bất biến","Tư bản khả biến","Tư bản ứng trước","Tư bản thanh toán"],"c":1},{"n":117,"q":"Thời gian chu chuyển tư bản không bao gồm?","o":["Thời gian sản xuất","Thời gian lưu thông","Thời gian tiêu thụ hàng hóa","Thời gian gián đoạn lao động"],"c":2},{"n":118,"q":"Trong nền kinh tế thị trường, cạnh tranh giữa các ngành tất yếu dẫn đến sự hình thành?","o":["Giá trị xã hội","Giá cả hàng hóa","Lợi nhuận siêu ngạch","Lợi nhuận bình quân"],"c":3},{"n":119,"q":"Giá cả sản xuất được tính bằng:","o":["Tổng chi phí sản xuất và lợi nhuận","Tổng chi phí sản xuất và lợi nhuận bình quân","Tổng chi phí sản xuất và giá trị thặng dư","Tổng chi phí sản xuất và lợi nhuận siêu nghạch"],"c":1},{"n":120,"q":"Lợi tức trong chủ nghĩa tư bản là:","o":["Số tiền trả cho quyền sử dụng vốn vay","Tiền lời của vốn vay","Tiền lãi do kinh doanh","Lợi nhuận bình quân do người đi vay trả cho người cho vay về quyền sử dụng vốn vay"],"c":3},{"n":121,"q":"Tỷ suất giá trị thặng dư là gì?","o":["Là tỷ lệ phần trăm giữa giá trị thặng dư và tư bản ứng trước","Là tỷ lệ phần trăm giữa giá trị thặng dư và tư bản khả biến","Là tỷ lệ phần trăm giữa giá trị thặng dư và tư bản bất biến","Là tỷ lệ phần trăm giữa giá thặng dư và tư bản lưu động"],"c":1},{"n":122,"q":"Tích tụ tư bản là gì?","o":["Là tăng quy mô tư bản cá biệt bằng cách hợp nhất nhiều tư bản nhỏ thành tư bản lớn","Là tăng quy mô tư bản cá biệt bằng cách tư bản hóa giá trị thặng dư trong một xí nghiệp nào đó","Là tăng quy mô tư bản bằng cách hợp nhất nhiều tư bản nhỏ thành tư bản lớn và tư bản hóa một phần giá trị thặng dư","Là tăng quy mô tư bản xã hội nhưng không làm tăng quy mô tư bản cá biệt"],"c":1},{"n":123,"q":"Địa tô tư bản chủ nghĩa phản ánh mối quan hệ nào sau đây?","o":["Địa chủ và công nhân nông nghiệp","Địa chủ, nhà tư bản đầu tư và công nhân nông nghiệp","Giữa các nhà tư bản kinh doanh nông nghiệp với nhau","Giữa nhà tư bản và công nhân nông nghiệp"],"c":1},{"n":124,"q":"Địa tô chênh lệch I là gì?","o":["Là địa tô thu được trên đất do hiệu quả đầu tư tư bản đem lại","Là địa tô thu được trên ruộng đất tốt và có điều kiện tự nhiên thuận lợi đem lại","Là địa tô thu được trên đất do thâm canh tăng năng suất mà có","Là địa tô thu được trên đất do ứng dụng khoa học kỹ thuật mang lại"],"c":1},{"n":125,"q":"Địa tô chênh lệch II là gì?","o":["Địa tô thu được trên đất có điều kiện tự nhiên thuận lợi đem lại","Địa tô thu được trên đất do thâm canh tăng năng suất mà có","Địa tô thu được trên đất do vị trí đất gần nơi tiêu thụ mà có","Địa tô thu được trên đất có điều kiện giao thông mang lại"],"c":1},{"n":126,"q":"Tư bản tài chính là gì?","o":["Là kết quả của sự hợp nhất giữa tư bản ngân hàng của một số ít ngân hàng độc quyền lớn nhất với tư bản của những liên minh độc quyền các nhà công nghiệp","Là tư bản do sự liên kết về tài chính giữa các nhà tư bản hợp thành","Là những tư bản đầu tư trong lĩnh vực tài chính","Là kết quả hợp nhất giữa tư bản sản xuất và tư bản ngân hàng"],"c":0},{"n":127,"q":"Căn cứ vào đâu để phân chia thành tái sản xuất cá biệt và tái sản xuất xã hội?","o":["Căn cứ vào phạm vi sản xuất","Căn cứ vào tốc độ sản xuất","Căn cứ vào tính chất sản xuất","Căn cứ vào nội dung sản xuất"],"c":0},{"n":128,"q":"Chọn phương án sai về tái sản xuất mở rộng theo chiều rộng và tái sản xuất mở rộng theo chiều sâu?","o":["Cả hai hình thức tái sản xuất đều làm cho sản phẩm tăng lên","Cả hai hình thức tái sản xuất đều dựa trên cơ sở tăng năng suất lao động và hiệu quả sử dụng các yếu tố đầu vào","Tái sản xuất mở rộng theo chiều sâu sử dụng tài nguyên hiệu quả hơn và gây ra ô nhiễm ít hơn tái sản xuất mở rộng theo chiều rộng","Các phương án được nêu đều đúng"],"c":1},{"n":129,"q":"Khẳng định sau đây là của ai? \"…Tự do cạnh tranh đẻ ra tập trung sản xuất và sự tập trung sản xuất này khi phát triển đến mức độ nhất định, lại dẫn tới độc quyền\"","o":["C.Mác","Ph.Ănghen","Mác và Ph.Ănghen","I.Lênin"],"c":3},{"n":130,"q":"Chủ nghĩa tư bản độc quyền xuất hiện vào thời gian nào?","o":["Cuối thế kỷ XIX đầu thế kỷ XX","Những năm đầu thế kỷ XIX","Những năm 40 thế kỷ XIX","Đầu thế kỷ XX"],"c":0},{"n":131,"q":"Một trong những nguyên nhân ra đời của chủ nghĩa tư bản độc quyền. Chọn phương án sai","o":["Do sự đấu tranh quyết liệt của giai cấp công nhân chống giai cấp tư sản","Do sự phát triển của lực lượng sản xuất dưới sự tác động của tiến bộ khoa học kỹ thuật","Do cạnh tranh gay gắt giữa các doanh nghiệp","Do sự phát triển của hệ thống tín dụng trở thành đòn bẩy mạnh mẽ thúc đẩy tập trung sản xuất"],"c":0},{"n":132,"q":"Chủ nghĩa tư bản phát triển qua các giai đoạn nào?","o":["Chủ nghĩa tư bản độc quyền và chủ nghĩa đế quốc","Chủ nghĩa tư bản và chủ nghĩa đế quốc","Chủ nghĩa tư bản bất biến và chủ nghĩa tư bản khả biến","Chủ nghĩa tư bản tự do cạnh tranh và chủ nghĩa tư bản độc quyền"],"c":3},{"n":133,"q":"Xuất khẩu tư bản là đặc điểm của:","o":["Chủ nghĩa tư bản","Các nước giàu có","Chủ nghĩa tư bản độc quyền","Chủ nghĩa tư bản tự do cạnh tranh"],"c":2},{"n":134,"q":"Đặc trưng của hình thức tổ chức độc quyền Cartel (Các-ten)?","o":["Các xí nghiệp tư bản ký kết hiệp nghị thỏa thuận với nhau về giá cả sản xuất, sản lượng, thị trường tiêu thụ, kỳ hạn thanh toán…","Việc sản xuất, tiêu thụ hàng hóa đều do một ban quản trị điều hành","Gồm các xí nghiệp lớn, thuộc các nghành nghề khác nhau liên kết lại","Các xí nghiệp lớn chỉ góp vốn làm ăn mà không sản xuất, kinh doanh"],"c":0},{"n":135,"q":"Tư bản tài chính chủ yếu thực hiện sự thống trị của mình thông qua:","o":["Lợi nhuận độc quyền","Giá cả độc quyền","Cho vay nặng lãi","Chế độ tham dự"],"c":3},{"n":136,"q":"Xuất khẩu hàng hóa là đặc điểm cơ bản của:","o":["Các nước giàu sang các nước nghèo","Các nước nghèo sang các nước giàu","Chủ nghĩa tư bản tự do cạnh tranh","Chủ nghĩa tư bản độc quyền"],"c":2},{"n":137,"q":"Một trong hai hình thức xuất khẩu tư bản chủ yếu là:","o":["Đầu tư trực tiếp","Đầu tư trong nước","Xuất khẩu hàng hóa","Xuất khẩu lao động"],"c":0},{"n":138,"q":"Sự ra đời của chủ nghĩa tư bản độc quyền nhà nước nhằm mục đích gì?","o":["Phục vụ lợi ích của các tổ chức độc quyền tư nhân và tiếp tục duy trì, phát triển chủ nghĩa tư bản","Giúp nhà nước tư sản thâu tóm lợi nhuận của các nhà tư bản tư nhân","Giúp nhà nước tư sản điều hòa được mâu thuẫn giai cấp trong xã hội","Tạo ra công cụ mới giúp chủ nghĩa tư bản chống lại sự lớn mạnh của hệ thống xã hội chủ nghĩa"],"c":0},{"n":139,"q":"Cơ chế điều tiết kinh tế độc quyền nhà nước bao gồm:","o":["Cơ chế thị trường và độc quyền tư nhân","Độc quyền tư nhân và sự điều tiết của nhà nước","Cơ chế thị trường, độc quyền tư nhân và sự điều tiết của nhà nước","Cơ chế thị trường, quy luật thị trường, điều tiết của nhà nước"],"c":2},{"n":140,"q":"Các tài phiệt (đầu sỏ tài chính, trùm tài chính) thực hiện sự thống trị kinh tế của mình thông qua:","o":["Chế độ tham dự","Chế độ ủy nhiệm","Kết hợp chế độ tham dự và chế độ ủy nhiệm","Các tổ chức tài chính quốc tế"],"c":0},{"n":141,"q":"Xuất khẩu hàng hóa là:","o":["Đưa hàng hóa ra trao đổi trên thị trường","Đưa hàng hóa ra nước ngoài bán để thực hiện giá trị","Xuất khẩu giá trị ra nước ngoài","Đầu tư tiền mua hàng hóa ở nước ngoài"],"c":1},{"n":142,"q":"Về kinh tế, xuất khẩu tư bản nhà nước thường hướng vào:","o":["Những ngành có tốc độ chu chuyển vốn nhanh","Những ngành nhanh thu được lợi nhuận","Những ngành có công nghệ tiên tiến, hiện đại","Những ngành thuộc kết cấu hạ tầng"],"c":3},{"n":143,"q":"C.Mác đã dựa vào học thuyết nào để vạch rõ bản chất bóc lột của xã hội tư bản?","o":["Học thuyết chủ nghĩa duy vật lịch sử","Học thuyết giá trị thặng dư","Học thuyết hình thái kinh tế-xã hội","Học thuyết giá trị"],"c":1},{"n":144,"q":"Giá trị hàng hóa sức lao động không bao gồm yếu tố nào sau đây:","o":["Giá trị tư liệu sinh hoạt cần thiết để tái sản xuất sức lao động","Phí tổn đào tạo người lao động","Giá trị những tư liệu sinh hoạt cần thiết để nuôi con của người lao động","Chi phí đầu tư máy móc, công cụ lao động cho người lao động"],"c":3},{"n":145,"q":"Cạnh tranh giữa các ngành xảy ra khi có sự khác nhau về?","o":["Cung và cầu các loại hàng hóa","Lợi tức","Tỷ suất lợi nhuận","Giá trị thặng dư siêu nghạch"],"c":2},{"n":146,"q":"Vai trò mới của ngân hàng trong giai đoạn chủ nghĩa tư bản độc quyền là?","o":["Đầu tư tư bản","Khống chế hoạt động của nền kinh tế tư bản","Là trung tâm tín dụng","Là trung tâm thanh toán"],"c":1},{"n":147,"q":"Chế độ tham dự của tư bản tài chính được thiết lập do:","o":["Quyết định của nhà nước","Yêu cầu tổ chức của các ngân hàng","Yêu cầu của các tổ chức độc quyền công nghiệp","Số cổ phiếu khống chế nắm công ty mẹ, công ty con, công ty cháu"],"c":3},{"n":148,"q":"Trong cùng một đơn vị thời gian, khi số lượng sản phẩm tăng lên còn giá trị một đơn vị hàng hóa và các điều kiện khác không thay đổi thì đó là kết quả của:","o":["Tăng năng suất lao động","Tăng cường độ lao động","Tăng năng suất lao động và tăng cường độ lao động","Giảm năng suất lao động và cường độ lao động"],"c":1},{"n":149,"q":"Chọn phương án đúng nhất về địa tô tuyệt đối:","o":["Địa tô có trên đất xấu nhất","Địa tô có trên đất ở vị trí xa đường giao thông, thị trường","Địa tô trên đất có điều kiện sản xuất khó khăn nhất","Địa tô có trên tất cả các loại đất cho thuê"],"c":3},{"n":150,"q":"Đâu là nguyên nhân quyết định dẫn đến sự tích tụ và tập trung tư bản?","o":["Lao động xã hội","Tích lũy tư bản","Cải tiến kỹ thuật","Tái cấu trúc hệ thống tài chính"],"c":1},{"n":151,"q":"Trong tổ chức độc quyền Các-ten, các nhà tư bản độc lập về hoạt động gì? Chọn phương án đúng nhất","o":["Sản xuất và thương nghiệp","Thuế quan mậu dịch","Tiêu chuẩn đo lường chất lượng hàng hóa","Lưu thông hàng hóa"],"c":0},{"n":152,"q":"Mục đích hoạt động của hình thức độc quyền Xanh-đi-ca là gì?","o":["Ký hiệp nghị thoả thuận với nhau về giá cả, quy mô sản lượng, thị trường tiêu thụ, kỳ hạn thanh toán","Thống nhất đầu mối mua và bán để mua nguyên liệu với giá rẻ, bán hàng hoá với giá đắt nhằm thu lợi nhuận độc quyền cao","Loại trừ các đối thủ cạnh tranh trong một ngành sản xuất","Tự do định giá độc quyền cho sản phẩm"],"c":1},{"n":153,"q":"Mục đích của xuất khẩu tư bản của các cường quốc tư bản nhằm?","o":["Chiếm đoạt giá trị thặng dư và các nguồn lợi khác ở nước nhập khẩu tư bản","Để phát triển khoa học - kỹ thuật","Giúp đỡ các nước nhập khẩu tư bản phát triển","Chiếm đoạt lực lượng lao động của các nước nhập khẩu tư bản"],"c":0},{"n":154,"q":"Các tổ chức độc quyền ở thời kỳ đầu thường chọn nơi nào để xuất khẩu tư bản?","o":["Tại chính quốc","Tại các nước tư bản phát triển cao","Các nước có nền kinh tế kém phát triển","Các quốc gia đang xảy ra chiến tranh"],"c":2},{"n":155,"q":"Vì sao trong chủ nghĩa tư bản độc quyền cạnh tranh không bị thủ tiêu?","o":["Các nhà tư bản trong tổ chức độc quyền chưa thỏa hiệp nhau","Xã hội không thừa nhận các tổ chức độc quyền","Vì cạnh tranh là quy luật khách quan của kinh tế hàng hóa","Cạnh tranh là một thông lệ trong chủ nghĩa tư bản"],"c":2},{"n":156,"q":"Nguyên nhân cơ bản nào dẫn đến sự hình thành tư bản tài chính?","o":["Lượng tiền trong lưu thông hàng hóa quá lớn","Xuất hiện tầng lớp giàu có trong xã hội tư bản","Quá trình tích tụ và tập trung trong công nghiệp và các tổ chức ngân hàng","Xuất hiện một số nhà tư bản trữ một lượng tiền tệ quá lớn"],"c":2},{"n":157,"q":"Hoàn thiện luận điểm sau của Lênin: “Bọn tư sản chia nhau thế giới, không phải do tính độc ác đặc biệt của chúng, mà do sự … đã đạt đến mức độ buộc chúng phải đi vào con đường ấy để kiếm lời”","o":["Độc quyền","Tập trung","Thay đổi","Phát triển"],"c":1},{"n":158,"q":"Sự phân chia thế giới về lãnh thổ giữa các cường quốc đế quốc đã gây ra hậu quả nghiêm trọng nào đối với nhân loại?","o":["Hình thành chủ nghĩa khủng bố mang tính quốc tế","Môi trường sinh thái bị phá hủy nghiêm trọng","Nhân dân các nước trên thế giới trở nên mâu thuẫn nhau","Chiến tranh thế giới"],"c":3},{"n":159,"q":"Mối quan hệ giữa độc quyền và cạnh tranh trong chủ nghĩa tư bản là:","o":["Độc quyền làm cho cạnh tranh trở nên gay gắt hơn","Độc quyền sẽ thủ tiêu cạnh tranh","Độc quyền làm giảm sự cạnh tranh","Độc quyền và cạnh tranh hoàn toàn độc lập với nhau"],"c":0},{"n":160,"q":"Chủ nghĩa tư bản độc quyền nhà nước ra đời nhằm mục đích gì?","o":["Giúp nhà nước thâu tóm lợi nhuận các nhà tư bản","Phục vụ lợi ích của các tổ chức độc quyền tư nhân và tiếp tục duy trì, phát triển chủ nghĩa tư bản","Đẩy mạnh cạnh tranh giữa các tổ chức độc quyền tư nhân với nhau nhằm thu lợi nhuận","Tạo ra công cụ mới giúp chủ nghĩa tư bản chống lại sự lớn mạnh của hệ thống xã hội chủ nghĩa"],"c":1},{"n":161,"q":"Nguyên nhân sâu xa của sự chuyển biến từ chủ nghĩa tư bản tự do cạnh tranh sang chủ nghĩa tư bản độc quyền là?","o":["Mâu thuẫn giai cấp đối kháng gay gắt đến mức không thể điều hòa được","Sự phân hóa giàu nghèo trong xã hội tư bản","Trình độ phát triển của lực lượng sản xuất","Sự lạc hậu của quan hệ sản xuất tư bản chủ nghĩa"],"c":2},{"n":162,"q":"Biểu hiện chủ yếu của chủ nghĩa tư bản độc quyền nhà nước trong chủ nghĩa tư bản là:","o":["Sự kết hợp về nhân sự giữa nhà nước tư sản với các tổ chức độc quyền tư nhân","Xuất khẩu tư bản chuyển từ nước tư bản phát triển sang các nước chậm phát triển","Sự xuất hiện và thống trị của tư bản tài chính","Sự phát triển mạnh của các tổ chức độc quyền trong ngân hàng"],"c":0},{"n":163,"q":"Đóng góp tích cực và quan trọng nhất của chủ nghĩa tư bản đối với sự phát triển kinh tế - xã hội của nhân loại?","o":["Duy trì và phát triển chế độ tư hữu lên đỉnh cao","Thúc đẩy lực lượng sản xuất phát triển nhanh chóng","Xây dựng nhà nước pháp quyền tư sản để quản lý xã hội","Điều hòa mâu thuẫn giữa các giai cấp và tầng lớp trong xã hội"],"c":1},{"n":164,"q":"Các cuộc chiến tranh xâm chiếm thuộc địa của các nước đế quốc diễn ra mạnh mẽ vào thời kỳ nào?","o":["Thế kỷ XVII","Thế kỷ XVIII","Cuối thế kỷ XVIII - đầu thế kỷ XIX","Cuối thế kỷ XIX - đầu thế kỷ XX"],"c":3},{"n":165,"q":"Sở hữu độc quyền nhà nước là sự kết hợp giữa:","o":["Sở hữu nhà nước với sở hữu tư nhân tư bản chủ nghĩa","Sở hữu nhà nước với sở hữu độc quyền tư nhân","Sở hữu của nhà nước tư sản với nhau","Sở hữu của nhiều nước tư bản với nhau"],"c":1},{"n":166,"q":"Trong giai đoạn chủ nghĩa tư bản độc quyền, quy luật giá trị có biểu hiện mới thành:","o":["Quy luật giá cả sản xuất","Quy luật lợi nhuận bình quân","Quy luật giá cả độc quyền","Quy luật lợi nhuận độc quyền"],"c":2},{"n":167,"q":"Xuất khẩu tư bản tư nhân thường hướng vào ngành nào?","o":["Ngành có tốc độ chu chuyển vốn nhanh, lợi nhuận cao","Ngành có tốc độ chu chuyển vốn nhanh, ít lợi nhuận","Ngành có tốc độ chu chuyển chậm, lợi nhuận cao","Ngành thuộc kết cấu hạ tầng, kỹ thuật của nền kinh tế"],"c":0},{"n":168,"q":"Nhà nước thường đầu tư vào các lĩnh vực nào?","o":["Đầu tư lớn, thu hồi vốn nhanh, ít lợi nhuận","Đầu tư lớn, thu hồi vốn chậm, lợi nhuận cao","Đầu tư lớn, thu hồi vốn chậm, ít lợi nhuận","Đầu tư vừa phải, thu hồi vốn nhanh, lợi nhuận cao"],"c":2},{"n":169,"q":"Theo Lênin, chủ nghĩa tư bản độc quyền có mấy đặc điểm kinh tế cơ bản?","o":["Ba","Bốn","Năm","Sáu"],"c":2},{"n":170,"q":"Xét về chủ thể xuất khẩu, thì xuất khẩu tư bản được chia thành:","o":["Xuất khẩu tư bản tư nhân và xuất khẩu tư bản nhà nước","Xuất khẩu tư bản trực tiếp và xuất khẩu tư bản gián tiếp","Xuất khẩu tư bản trong nước và xuất khẩu tư bản nước ngoài","Xuất khẩu tư bản ngắn hạn và dài hạn"],"c":0},{"n":171,"q":"Quan hệ cung cầu thuộc khâu nào của quá trình tái sản xuất xã hội?","o":["Sản xuất và tiêu dùng","Trao đổi","Tiêu dùng","Phân phối và trao đổi"],"c":0},{"n":172,"q":"Nội dung nào sau đây không phải là tác động tích cực của hội nhập kinh tế quốc tế?","o":["Làm tăng cơ hội cho các doanh nghiệp trong nước tiếp cận thị trường quốc tế","Thúc đẩy chuyển dịch cơ cấu kinh tế theo hướng hợp lý, hiện đại và hiệu quả","Tạo ra một số thách thức đối với quyền lực nhà nước, chủ quyền quốc gia","Tác động mạnh mẽ đến hội nhập chính trị"],"c":2},{"n":173,"q":"WTO là từ viết tắt tên tổ chức nào sau đây?","o":["Hiệp hội các quốc gia Đông Nam Á","Diễn đàn hợp tác Á - Âu","Diễn đàn Hợp tác Kinh tế Châu Á - Thái Bình Dương","Tổ chức thương mại thế giới"],"c":3},{"n":174,"q":"Khu vực thương mại tự do ASEAN được viết tắt là gì?","o":["ASEAN","AFTA","ASEM","APEC"],"c":1},{"n":175,"q":"Diễn đàn hợp tác Á - Âu được viết tắt là gì?","o":["ASEAN","AFTA","ASEM","APEC"],"c":2},{"n":176,"q":"Quy luật giá trị được xem là: a. Quy luật riêng của chủ nghĩa tư bản b. Quy luật cơ bản của sản xuất và trao đổi hàng hoá c. Quy luật kinh tế chung của mọi xã hội d. Quy luật kinh tế của thời kỳ quá độ lên chủ nghĩa xã hội","o":[],"c":null},{"n":177,"q":"Vai trò của kinh tế tư nhân trong nền kinh tế thị trường định hướng xã hội chủ nghĩa?","o":["Chủ đạo","Nòng cốt","Động lực quan trọng","Nền tảng vững chắc"],"c":2},{"n":178,"q":"Ở Việt Nam tổ chức nào lãnh đạo nền kinh tế thị trường định hướng xã hội chủ nghĩa thông qua cương lĩnh, đường lối phát triển kinh tế - xã hội?","o":["Nhà nước","Đảng Cộng sản","Quốc hội","Chính phủ"],"c":1},{"n":179,"q":"Tổ chức nào quản lý nền kinh tế thị trường định hướng xã hội chủ nghĩa thông qua pháp luật, các chiến lược, kế hoạch, quy hoạch và cơ chế chính sách… ở Việt Nam?","o":["Nhà nước","Đảng Cộng sản","Bộ Công thương","Bộ Tài chính"],"c":0},{"n":180,"q":"Những hỗ trợ thị trường trong nước khi cần thiết, hỗ trợ các nhóm dân cư có thu nhập thấp gặp rủi ro trong cuộc sống nhằm?","o":["Đảm bảo tốc độ tăng trưởng kinh tế của xã hội","Tăng cường uy tín của Nhà nước","Giảm bớt sự phân hóa giàu nghèo và sự bất bình đẳng","Ổn định chính trị xã hội"],"c":2},{"n":181,"q":"Thực hiện tiến bộ công bằng xã hội có nghĩa là:","o":["Điều tiết thu nhập, an sinh xã hội, phúc lợi xã hội tạo tiền đề cần thiết để mọi người dân đều có cơ hội như nhau trong việc tiếp cận các dịch vụ xã hội","Cào bằng, bình quân các lợi ích","Chia đều các nguồn lực và của cải làm ra bất chấp chất lượng, hiệu quả và mức đóng góp","Dồn toàn bộ mọi nguồn lực cho sự phát triển xã hội vượt quá khả năng của nền kinh tế"],"c":0},{"n":182,"q":"Đâu không phải là lý do cần thực hiện hoàn thiện thể chế kinh tế thị trường định hướng xã hội chủ nghĩa?","o":["Do thể chế kinh tế thị trường định hướng xã hội chủ nghĩa còn chưa đồng bộ","Do thể chế kinh tế thị trường định hướng xã hội chủ nghĩa còn chưa đầy đủ","Do thể chế kinh tế thị trường định hướng xã hội chủ nghĩa còn kém hiệu lực, hiệu quả, kém đầy đủ các yếu tố thị trường và các loại thị trường","Do thể chế kinh tế thị trường định hướng xã hội chủ nghĩa ra đời sau nên chưa theo kịp các thể chế kinh tế thị trường khác"],"c":3},{"n":183,"q":"Có mấy nội dung cần phải thực hiện để hoàn thiện thể chế và sở hữu trong nền kinh tế thị trường định hướng xã hội chủ nghĩa?","o":["3 nội dung","5 nội dung","7 nội dung","9 nội dung"],"c":2},{"n":184,"q":"Điền vào chỗ trống từ còn thiếu để có cách hiểu đúng về lợi ích kinh tế? Lợi ích kinh tế là lợi ích ……, lợi ích thu được khi thực hiện các hoạt động kinh tế của con người","o":["Cá nhân","Tập thể","Vật chất","Tinh thần"],"c":2},{"n":185,"q":"Xét về bản chất, lợi ích kinh tế phản ánh nội dung nào sau đây?","o":["Phản ánh mục đích và động cơ các quan hệ giữa các chủ thể trong nền sản xuất xã hội","Phản ánh nguồn gốc các quan hệ giữa các chủ thể trong nền sản xuất xã hội","Phản ánh cơ sở và động lực các quan hệ giữa các chủ thể trong nền sản xuất xã hội","Phản ánh tiêu chuẩn các quan hệ giữa các chủ thể trong nền sản xuất xã hội"],"c":0},{"n":186,"q":"Về biểu hiện, lợi ích kinh tế trước hết của chủ doanh nghiệp sẽ là gì?","o":["Tiền công","Lợi nhuận","Thương hiệu","Chất lượng sản phẩm"],"c":1},{"n":187,"q":"Ai là tác giả của câu nói sau? “Ở đâu không có lợi ích chung thì ở đó không thể có sự thống nhất về mục đích và cũng không thể có sự thống nhất về hành động được”","o":["C.Mác","Ph.Ăngghen","V.I.Lênin","Hồ Chí Minh"],"c":1},{"n":188,"q":"Trong các hình thức lợi ích kinh tế, hình thức nào sau đây được xem là cơ sở, nền tảng của các hình thức lợi ích khác?","o":["Lợi ích cá nhân","Lợi ích nhóm","Lợi ích cộng đồng","Lợi ích xã hội"],"c":0},{"n":189,"q":"Có mấy nhân tố ảnh hướng đến quan hệ lợi ích kinh tế?","o":["2 nhân tố","3 nhân tố","4 nhân tố","5 nhân tố"],"c":2},{"n":190,"q":"Trong các nhân tố ảnh hưởng đến quan hệ lợi ích kinh tế, nhân tố nào biểu hiện sự tác động mạnh mẽ và nhiều chiều đến lợi ích kinh tế của các chủ thể?","o":["Trình độ phát triển của lực lượng sản xuất xã hội","Địa vị các chủ thể trong hệ thống quan hệ sản xuất xã hội","Chính sách phân phối thu nhập của nhà nước","Hội nhập kinh tế quốc tế"],"c":3},{"n":191,"q":"Điền vào chỗ trống từ còn thiếu để hoàn thiện khẳng định sau đây của Ph.Ăngghen: “Ở đâu không có …… chung thì ở đó không thể có sự thống nhất về mục đích và cũng không thể có sự thống nhất về hành động được”","o":["Mục tiêu","Lợi ích","Định hướng","Nguyên tắc"],"c":1},{"n":192,"q":"Đảng ta quan niệm kinh tế hàng hóa có những mặt tích cực cần vận dụng cho xây dựng chủ nghĩa xã hội từ kỳ đại hội nào?","o":["Đại hội VI","Đại hội VII","Đại hội VIII","Đại hội IX"],"c":0},{"n":193,"q":"Kỳ đại hội nào Đảng ta đã khẳng định: “Nền kinh tế thị trường định hướng xã hội chủ nghĩa ở nước ta là nền kinh tế hàng hóa nhiều thành phần, vận hành theo cơ chế thị trường, có sự quản lý của nhà nước, dưới sự lãnh đạo của Đảng Cộng sản”?","o":["Đại hội VI","Đại hội VII","Đại hội IX","Đại hội XI"],"c":3},{"n":194,"q":"Cơ sở sâu xa cho sự hình thành sở hữu hiện thực, trước hết xuất phát từ quá trình nào sau đây?","o":["Quá trình sản xuất hàng hóa","Quá trình tích lũy hàng hóa","Quá trình sản xuất và tái sản xuất xã hội","Quá trình lưu thông xã hội"],"c":2},{"n":195,"q":"Sở hữu bao hàm những nội dung nào sau đây?","o":["Nội dung kinh tế và nội dung chính trị","Nội dung chính trị và nội dung pháp lý","Nội dung kinh tế và nội dung pháp lý","Nội dung kinh tế và nội dung xã hội"],"c":2},{"n":196,"q":"Từ nào sau đây diễn đạt vai trò của kinh tế nhà nước trong nền kinh tế thị trường định hướng xã hội chủ nghĩa ở Việt Nam:","o":["Chủ đạo","Nòng cốt","Quan trọng","Nền tảng"],"c":0},{"n":197,"q":"Thành phần kinh tế nào giữ vai trò là một động lực quan trọng trong kinh tế thị trường định hướng xã hội chủ nghĩa ở Việt Nam?","o":["Kinh tế tư nhân","Kinh tế hộ gia đình","Kinh tế tập thể","Kinh tế nhà nước"],"c":0},{"n":198,"q":"Thành phần kinh tế nào sau đây được xem là nòng cốt để phát triển một nền kinh tế độc lập tự chủ trong nền kinh tế thị trường định hướng xã hội chủ nghĩa ở Việt Nam?","o":["Kinh tế nhà nước và kinh tế tập thể","Kinh tế nhà nước, kinh tế tập thể cùng với kinh tế tư nhân","Kinh tế nhà nước và kinh tế tư nhân","Kinh tế tư nhân và kinh tế tập thể"],"c":1},{"n":199,"q":"Đâu không phải là bộ phận cơ bản của thể chế kinh tế?","o":["Hệ thống pháp luật về kinh tế của nhà nước và các quy tắc xã hội được nhà nước thừa nhận","Hệ thống các chủ thể thực hiện các hoạt động kinh tế","Các cơ chế, phương pháp, thủ tục thực hiện các quy định và vận hành nền kinh tế","Các cương lĩnh, đường lối phát triển kinh tế - xã hội"],"c":3},{"n":200,"q":"Về biểu hiện, lợi ích kinh tế trước hết của người lao động là gì?","o":["Tiền công","Phúc lợi xã hội","Bồi dưỡng nâng cao trình độ","Chế độ ưu đãi"],"c":0},{"n":201,"q":"Theo Ph.Ăngghen những quan hệ kinh tế của một xã hội nhất định biểu hiện trước hết dưới hình thái nào sau đây?","o":["Hàng hóa","Tiền tệ","Lợi ích","Thị trường"],"c":2},{"n":202,"q":"Trong các luận điểm sau, đâu không phải là vai trò của lợi ích kinh tế?","o":["Lợi ích kinh tế là động lực trực tiếp của các chủ thể kinh tế - xã hội","Lợi ích kinh tế là động lực trực tiếp của các hoạt động kinh tế - xã hội","Lợi ích kinh tế là mục tiêu hàng đầu của các chủ thể kinh tế - xã hội","Lợi ích kinh tế là cơ sở thúc đẩy sự phát triển của các lợi ích khác"],"c":2},{"n":203,"q":"Điền vào chỗ trống từ còn thiếu để hoàn thiện quan điểm sau của C.Mác: “Cội nguồn phát triển của xã hội không phải là quá trình nhận thức, mà là các quan hệ của đời sống vật chất, tức là các lợi ích …… của con người”","o":["Vật chất","Tinh thần","Kinh tế","Cá nhân"],"c":2},{"n":204,"q":"“Đổi mới phải luôn quán triệt quan điểm “dân là gốc”, vì lợi ích của nhân dân, dựa vào nhân dân, phát huy vai trò làm chủ, tinh thần trách nhiệm, sức sáng tạo và mọi nguồn lực của nhân dân; phát huy sức mạnh đoàn kết toàn dân tộc”. Quan điểm trên của Đảng Cộng sản Việt Nam trong văn kiện Đại hội XII nói về nguyên tắc nào?","o":["Nguyên tắc lợi ích của tập thể","Nguyên tắc lợi ích vì dân","Nguyên tắc lấy dân làm gốc","Nguyên tắc ngoại giao nhân dân"],"c":1},{"n":205,"q":"Mâu thuẫn về lợi ích trong lĩnh vực nào sau đây được xem là cội nguồn của các xung đột xã hội?","o":["Kinh tế","Chính trị","Văn hóa","Xã hội"],"c":0},{"n":206,"q":"Trong các nhân tố ảnh hưởng đến quan hệ lợi ích kinh tế thì việc phát triển nhân tố nào trở thành nhiệm vụ quan trọng hàng đầu của các quốc gia?","o":["Phát triển lực lượng sản xuất","Phát triển địa vị của chủ thể trong hệ thống quan hệ sản xuất xã hội","Phát triển chính sách phân phối thu nhập của nhà nước","Phát triển hội nhập kinh tế quốc tế"],"c":0},{"n":207,"q":"Nội dung nào sau đây không diễn đạt lợi ích kinh tế cơ bản trong nền kinh tế thị trường?","o":["Quan hệ lợi ích giữa người lao động và người sử dụng lao động","Quan hệ lợi ích giữa những người sử dụng lao động với nhau","Quan hệ lợi ích giữa những người lao động với nhau","Quan hệ lợi ích giữa người sản xuất và người tiêu dùng"],"c":3},{"n":208,"q":"Điền vào chỗ trống từ còn thiếu để diễn đạt ý đúng: Trong nền kinh tế thị trường định hướng xã hội chủ nghĩa ở Việt Nam thì kinh tế tập thể cùng với kinh tế tư nhân được xác định là ……. để phát triển một nền kinh tế độc lập tự chủ.","o":["Chủ đạo","Quan trọng","Nòng cốt","Quyết định"],"c":2},{"n":209,"q":"Tổ chức quan trọng nhất bảo vệ quyền lợi của người lao động là?","o":["Hội liên hiệp thanh niên","Mặt trận tổ quốc","Công đoàn","Hội liên hiệp phụ nữ"],"c":2},{"n":210,"q":"Mối quan hệ về lợi ích kinh tế giữa người lao động và người sử dụng lao động được biểu hiện như thế nào?","o":["Là mối quan hệ gắn bó chặt chẽ, thống nhất với nhau","Là mối quan hệ chặt chẽ, vừa thống nhất vừa mâu thuẫn với nhau","Là mối quan hệ đối lập, mâu thuẫn với nhau","Là mối quan hệ cân bằng, song hành nhưng có mặt đối lập với nhau"],"c":1},{"n":211,"q":"Sự thống nhất và mâu thuẫn về lợi ích kinh tế giữa những người sử dụng lao động được biểu hiện tập trung ở yếu tố nào sau đây?","o":["Giá trị thặng dư","Lợi nhuận","Lợi nhuận bình quân","Tỷ suất lợi nhuận"],"c":2},{"n":212,"q":"Để đảm bảo sự thống nhất giữa lợi ích cá nhân và lợi ích xã hội cần phải thực hiện?","o":["Đảm bảo lợi ích cá nhân trước hết","Chỉ cần tôn trọng lợi ích xã hội","Chống “lợi ích nhóm” và “nhóm lợi ích” tiêu cực","Đặt lợi ích nhóm lên hàng đầu"],"c":2},{"n":213,"q":"Chọn câu trả lời sai khi đề cập đến phương thức thực hiện lợi ích kinh tế trong các quan hệ lợi ích chủ yếu?","o":["Thực hiện lợi ích kinh tế theo nhu cầu cá nhân","Thực hiện lợi ích kinh tế theo nguyên tắc thị trường","Thực hiện lợi ích kinh tế theo chính sách của nhà nước","Thực hiện lợi ích kinh tế theo vai trò của các tổ chức xã hội"],"c":0},{"n":214,"q":"Chọn câu trả lời sai về vai trò của nhà nước trong bảo đảm hài hòa các quan hệ lợi ích?","o":["Bảo vệ lợi ích hợp pháp, tạo môi trường thuận lợi cho hoạt động tìm kiếm lợi ích của các chủ thể kinh tế","Tập trung vào việc nâng cao lợi ích cá nhân","Kiểm soát, ngăn ngừa các quan hệ lợi ích có ảnh hưởng tiêu cực đối với sự phát triển xã hội","Giải quyết những mâu thuẫn trong quan hệ lợi ích kinh tế"],"c":1},{"n":215,"q":"Để tạo lập môi trường thuận lợi cho các hoạt động kinh tế trước hết cần phải làm gì?","o":["Giữ vững ổn định về chính trị","Nâng cao chất lượng giáo dục","Phát triển khoa học công nghệ","Tăng cường hội nhập quốc tế"],"c":0},{"n":216,"q":"Đâu là những điều kiện vật chất để thực hiện ngày càng đầy đủ sự công bằng xã hội trong phân phối?","o":["Nâng cao địa vị của chủ thể trong hệ thống quan hệ sản xuất xã hội","Nhà nước phải đưa ra được các chính sách phù hợp với nhu cầu của nền kinh tế trong từng giai đoạn phát triển","Phát triển mạnh mẽ lực lượng sản xuất, phát triển khoa học - công nghệ để nâng cao thu nhập cho các chủ thể kinh tế","Xây dựng môi trường pháp luật thông thoáng, bảo vệ được lợi ích chính đáng của các chủ thể kinh tế trong và ngoài nước"],"c":2},{"n":217,"q":"Để chống lại các hình thức thu nhập bất hợp pháp, bảo đảm hài hòa các lợi ích kinh tế trước hết cần phải làm gì?","o":["Có bộ máy nhà nước liêm chính, có hiệu lực","Nhà nước cần thực hiện chính sách xóa đói giảm nghèo","Đẩy mạnh các hoạt động nhân đạo, từ thiện, giúp đỡ người nghèo","Chú trọng các chính sách ưu đãi xã hội"],"c":0},{"n":218,"q":"Nguyên tắc giải quyết mâu thuẫn giữa các lợi ích kinh tế là gì?","o":["Phải giải quyết kịp thời, đảm bảo lợi ích hài hòa giữa các bên","Phải thường xuyên quan tâm phát hiện mâu thuẫn và chuẩn bị chu đáo các giải pháp đối phó","Phải có sự tham gia hòa giải của các tổ chức xã hội có liên quan, đặc biệt là nhà nước","Phải có sự tham gia của các bên liên quan, có nhân nhượng và phải đặt lợi ích đất nước lên trên hết"],"c":3},{"n":219,"q":"Chức năng nào của tiền tệ không đòi hỏi có tiền vàng?","o":["Chức năng thước đo giá trị","Chức năng phương tiện lưu thông và phương tiện thanh toán","Chức năng phương tiện cất trữ","Các phương án được nêu đều đúng"],"c":1},{"n":220,"q":"Tiền tệ có mấy chức năng khi chưa có quan hệ kinh tế quốc tế?","o":["Hai chức năng","Ba chức năng","Bốn chức năng","Năm chức năng"],"c":2},{"n":221,"q":"Nhân tố nào là cơ bản, lâu dài để tăng sản phẩm cho xã hội?","o":["Tăng năng suất lao động","Tăng cường độ lao động","Tăng số người lao động","Kéo dài thời gian lao động"],"c":0},{"n":222,"q":"Chọn phương án đúng:","o":["Lao động của người kỹ sư có trình độ cao thuần tuý là lao động trừu tượng","Lao động của người không qua đào tạo chỉ là lao động cụ thể","Lao động của mọi người sản xuất hàng hoá đều có lao động cụ thể và lao động trừu tượng","Các phương án được nêu đều đúng"],"c":2},{"n":223,"q":"Nội dung nào sau đây không phải là tác động tiêu cực của hội nhập kinh tế quốc tế?","o":["Làm gia tăng sự cạnh tranh gay gắt","Là tiền đề cho hội nhập về văn hóa","Gia tăng sự phụ thuộc của nền kinh tế quốc gia vào thị trường bên ngoài","Dẫn đến phân phối không công bằng lợi ích"],"c":1},{"n":224,"q":"Cuộc cách mạng công nghiệp nào đã tạo ra những tiến bộ vượt bậc trong giao thông vận tải và thông tin liên lạc?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":1},{"n":225,"q":"“… trong quá trình thống trị giai cấp chưa đầy một thế kỷ, đã tạo ra những lực lượng nhiều hơn và đồ sộ hơn lực lượng sản xuất của tất cả các thế hệ trước kia gộp lại”. Giai cấp thống trị được C.Mác và Ph.Ăngghen nhắc tới trong nhận xét trên là giai cấp nào?","o":["Giai cấp vô sản","Giai cấp tư sản","Giai cấp chủ nô","Giai cấp địa chủ"],"c":1},{"n":226,"q":"Cuộc cách mạng công nghiệp nào đã đẩy nhanh quá trình xã hội hóa sản xuất thúc đẩy chủ nghĩa tư bản chuyển biến từ giai đoạn tự do cạnh tranh sang giai đoạn độc quyền làm gia tăng mâu thuẫn của chủ nghĩa tư bản trong giai đoạn này?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":1},{"n":227,"q":"Điền vào chỗ trống từ còn thiếu để hoàn chỉnh khái niệm sau: Công nghiệp hóa là quá trình chuyển đổi nền sản xuất xã hội từ dựa trên lao động …… là chính sang nền sản xuất xã hội dựa chủ yếu trên lao động bằng máy móc nhằm tạo ra năng suất lao động xã hội cao","o":["Chân tay","Trí óc","Giản đơn","Thủ công"],"c":3},{"n":228,"q":"Đâu không phải là một trong ba mô hình công nghiệp hóa tiêu biểu trên thế giới?","o":["Mô hình công nghiệp hóa cổ điển","Mô hình công nghiệp hóa kiểu Liên Xô cũ","Mô hình công nghiệp hóa định hướng xã hội chủ nghĩa Việt Nam","Mô hình công nghiệp hóa của Nhật Bản và các nước công nghiệp mới (NICs)"],"c":2},{"n":229,"q":"Nhân tố quyết định sự thắng lợi của con đường đi lên chủ nghĩa xã hội mà Đảng và Nhân dân ta đã lựa chọn là?","o":["Công nghiệp hóa - hiện đại hóa","Tăng cường giao lưu văn hóa","Sự ổn định chính trị","Sự đoàn kết của các giai cấp tầng lớp"],"c":0},{"n":230,"q":"Để xây dựng nền kinh tế có tính độc lập tự chủ cao, theo Lênin cần phải ưu tiên nội dung nào sau đây?","o":["Ưu tiên phát triển tư liệu sản xuất","Ưu tiên nâng cao trình độ người lao động","Ưu tiên cải thiện chất lượng đối tượng lao động","Ưu tiên đầu tư cho các quan hệ sản xuất"],"c":0},{"n":231,"q":"Trong hệ thống cơ cấu kinh tế thì cơ cấu nào giữ vị trí quan trọng nhất?","o":["Cơ cấu ngành","Cơ cấu vùng","Cơ cấu thành phần kinh tế","Cơ cấu độ tuổi lao động"],"c":0},{"n":232,"q":"Quá trình công nghiệp hóa – hiện đại hóa ở Việt Nam hiện nay trước hết cần ưu tiên phát triển ngành công nghiệp nào sau đây?","o":["Công nghiệp năng lượng","Công nghiệp cơ khí","Công nghiệp điện tử","Công nghiệp hàng tiêu dùng"],"c":1},{"n":233,"q":"Có mấy biện pháp Việt Nam phải thực hiện để xây dựng thành công nền kinh tế độc lập, tự chủ đi đôi với tích cực và chủ động hội nhập kinh tế quốc tế?","o":["3 biện pháp","4 biện pháp","5 biện pháp","6 biện pháp"],"c":2},{"n":234,"q":"Việt Nam gia nhập Hiệp hội các quốc gia Đông Nam Á (ASEAN) vào năm nào?","o":["1993","1995","1996","1998"],"c":1},{"n":235,"q":"Việt Nam chính thức trở thành thành viên của tổ chức thương mại thế giới (WTO) vào năm nào?","o":["1995","1998","2007","2009"],"c":2},{"n":236,"q":"Điền vào chỗ trống từ còn thiếu để hoàn thiện khái niệm về hội nhập kinh tế quốc tế: “Hội nhập kinh tế quốc tế của một quốc gia đó là thực hiện gắn kết nền kinh tế của mình với nền kinh tế thế giới dựa trên sự chia sẻ lợi ích đồng thời tuân thủ các …… quốc tế chung”","o":["Nguyên tắc","Thoả thuận","Pháp luật","Chuẩn mực"],"c":3},{"n":237,"q":"Toàn cầu hóa trên phương diện nào sau đây được xem là xu thế nổi trội nhất, vừa là trung tâm, vừa là cơ sở và động lực thúc đẩy toàn cầu hóa ở các lĩnh vực khác?","o":["Kinh tế","Chính trị","Văn hóa","Xã hội"],"c":0},{"n":238,"q":"Điền vào chỗ trống từ còn thiếu để hoàn thiện khái niệm về cách mạng công nghiệp? Cách mạng công nghiệp là những bước phát triển nhảy vọt về chất trình độ của …… trên cơ sở những phát minh đột phá về kỹ thuật và công nghệ trong quá trình phát triển của nhân loại kéo theo sự thay đổi căn bản về phân công lao động xã hội cũng như tạo bước phát triển năng suất lao động cao hơn hẳn nhờ áp dụng một cách phổ biến những tính năng mới trong kỹ thuật - công nghệ đó vào đời sống xã hội.","o":["Quan hệ sản xuất","Phương thức sản xuất","Tư liệu lao động","Đối tượng lao động"],"c":2},{"n":239,"q":"Cách mạng công nghiệp lần thứ Nhất diễn ra vào thời gian nào sau đây?","o":["Đầu thế kỷ XV đến giữa thế kỷ XVI","Đầu thế kỷ XVII đến cuối thế kỷ XVIII","Giữa thế kỷ XVIII đến giữa thế kỷ XIX","Nửa cuối thế kỷ XIX đến đầu thế kỷ XX"],"c":2},{"n":240,"q":"Cách mạng công nghiệp lần thứ Ba diễn ra trong khoảng thời gian nào sau đây?","o":["Đầu thế kỷ XVII đến giữa thế kỷ XVIII","Giữa thế kỷ XVIII đến giữa thế kỷ XIX","Nửa cuối thế kỷ XIX đến đầu thế kỷ XX","Thập niên 60 của thế kỷ XX đến cuối thế kỷ XX"],"c":3},{"n":241,"q":"Nội dung cơ bản của cách mạng công nghiệp lần thứ Nhất là gì?","o":["Chuyển từ lao động thủ công thành lao động sử dụng máy móc, thực hiện cơ giới hóa sản xuất bằng việc sử dụng năng lượng nước và hơi nước","Sử dụng năng lượng điện và động cơ điện để tạo ra các dây chuyền sản xuất có tính chuyên môn hóa cao, chuyển nền sản xuất cơ khí sang nền sản xuất điện cơ khí và sang giai đoạn tự động hóa cục bộ trong sản xuất","Sử dụng công nghệ thông tin và tự động hóa sản xuất","Sự xuất hiện các công nghệ mới có tính đột phá về chất như trí tuệ nhân tạo, in 3D…"],"c":0},{"n":242,"q":"Nội dung cơ bản của cách mạng công nghiệp lần thứ Hai là gì?","o":["Chuyển từ lao động thủ công thành lao động sử dụng máy móc, thực hiện cơ giới hóa sản xuất bằng việc sử dụng năng lượng nước và hơi nước","Sử dụng năng lượng điện và động cơ điện để tạo ra các dây chuyền sản xuất có tính chuyên môn hóa cao, chuyển nền sản xuất cơ khí sang nền sản xuất điện cơ khí và sang giai đoạn tự động hóa cục bộ trong sản xuất","Sử dụng công nghệ thông tin và tự động hóa sản xuất","Sự xuất hiện các công nghệ mới có tính đột phá về chất như trí tuệ nhân tạo, in 3D…"],"c":1},{"n":243,"q":"Đặc trưng cơ bản của cách mạng công nghiệp lần thứ Tư là gì?","o":["Chuyển từ lao động thủ công thành lao động sử dụng máy móc","Sử dụng năng lượng điện và động cơ điện","Sử dụng công nghệ thông tin, tự động hóa sản xuất","Xuất hiện các công nghệ mới có tính đột phá về chất như trí tuệ nhân tạo, in 3D…"],"c":3},{"n":244,"q":"Sử dụng năng lượng điện và động cơ điện để tạo ra các dây chuyền sản xuất có tính chuyên môn hóa cao, chuyển nền sản xuất cơ khí sang nền sản xuất điện cơ khí và sang giai đoạn tự động hóa cục bộ trong sản xuất. Đây là nội dung cơ bản của cuộc cách mạng công nghiệp nào?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":1},{"n":245,"q":"Phương pháp quản lý sản xuất tiên tiến của H.Ford và Taylor được ra đời trong cuộc cách mạng công nghiệp nào?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":1},{"n":246,"q":"Hệ thống mạng, máy tính cá nhân, thiết bị điện tử sử dụng công nghệ số và robot công nghiệp xuất hiện từ cuộc cách mạng công nghiệp nào?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":2},{"n":247,"q":"Các cuộc cách mạng công nghiệp xuất hiện đều có những nội dung cốt lõi về yếu tố nào sau đây?","o":["Đối tượng lao động","Quan hệ sản xuất","Quan hệ lao động","Tư liệu lao động"],"c":3},{"n":248,"q":"Cuộc cách mạng công nghiệp nào sau đây đã làm gia tăng mâu thuẫn giữa các nước tư bản phát triển từ đó dẫn đến cuộc chiến tranh thế giới thứ nhất (1914 - 1918) và cuộc chiến tranh thế giới thứ hai (1939 - 1945) đòi phân chia lại thuộc địa?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":1},{"n":249,"q":"Cuộc cách mạng nào sau đây đã tạo điều kiện để chuyển biến nền kinh tế công nghiệp sang nền kinh tế tri thức?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":2},{"n":250,"q":"Cuộc cách mạng công nghiệp nào sau đây sẽ có sự hợp nhất về công nghệ từ đó xóa bỏ ranh giới giữa các lĩnh vực kỹ thuật số, vật lý và sinh học?","o":["Cách mạng công nghiệp lần thứ nhất","Cách mạng công nghiệp lần thứ hai","Cách mạng công nghiệp lần thứ ba","Cách mạng công nghiệp lần thứ tư"],"c":3},{"n":251,"q":"Thách thức lớn nhất mà các quốc gia phải đối diện trong cuộc cách mạng công nghiệp lần thứ Tư là gì?","o":["Khoảng cách phát triển về lực lượng sản xuất","Sức ép cạnh tranh và thích ứng rất lớn","Nạn thất nghiệp và phân hóa thu nhập gay gắt","Sự thiếu hụt về tài nguyên thiên nhiên và ô nhiễm môi trường"],"c":0},{"n":252,"q":"Sự thích ứng hiệu quả với những tác động mới của cách mạng công nghiệp lần thứ Tư được xác định là nhiệm của ai?","o":["Nhà nước","Doanh nghiệp","Toàn dân","Các tổ chức kinh tế"],"c":2},{"n":253,"q":"Mô hình công nghiệp hóa cổ điển tiêu biểu là của nước nào?","o":["Anh","Pháp","Đức","Liên Xô"],"c":0},{"n":254,"q":"Công nghiệp hóa ở nước Anh được bắt đầu từ ngành nào?","o":["Công nghiệp nhẹ","Công nghiệp nặng","Công nghiệp chế biến","Công nghiệp giải trí"],"c":0},{"n":255,"q":"Công nghiệp hóa của các nước tư bản cổ điển diễn ra trong thời gian bao lâu?","o":["10 - 20 năm b 20 - 30 năm","30 - 50 năm","60 - 80 năm"],"c":2},{"n":256,"q":"Nguồn vốn để công nghiệp hóa ở các nước tư bản cổ điển chủ yếu là do?","o":["Huy động những nguồn lực to lớn trong xã hội","Vận động từ quần chúng nhân dân","Bóc lột lao động làm thuê","Nguồn viện trợ từ các nước phát triển"],"c":2},{"n":257,"q":"Mô hình công nghiệp hóa kiểu Liên Xô cũ bắt đầu từ năm nào?","o":["1917","1930","1945","1960"],"c":1},{"n":258,"q":"Con đường công nghiệp hóa theo mô hình Liên Xô cũ thường ưu tiên phát triển ngành nào?","o":["Công nghiệp chế biến","Công nghiệp sản xuất hàng tiêu dùng","Công nghiệp dệt","Công nghiệp cơ khí, chế tạo máy"],"c":3},{"n":259,"q":"Quá trình công nghiệp hóa của Nhật Bản và các nước công nghiệp mới (NICs) diễn ra khoảng bao nhiêu năm?","o":["10 - 20 năm","20 - 30 năm","30 - 50 năm","60 - 80 năm"],"c":1},{"n":260,"q":"Đâu không phải là đặc điểm chủ yếu của công nghiệp hóa, hiện đại hóa ở Việt Nam?","o":["Công nghiệp hóa hiện đại hóa theo định hướng xã hội chủ nghĩa, thực hiện mục tiêu “dân giàu, nước mạnh, dân chủ, công bằng, văn minh”","Công nghiệp hóa hiện đại hóa gắn với phát triển kinh tế tiểu nông","Công nghiệp hóa hiện đại hóa trong điều kiện kinh tế thị trường định hướng xã hội chủ nghĩa","Công nghiệp hóa hiện đại hóa trong bối cảnh toàn cầu hóa kinh tế và Việt Nam đang tích cực, chủ động hội nhập kinh tế quốc tế"],"c":1},{"n":261,"q":"Nội dung quan trọng hàng đầu để thực hiện thành công công nghiệp hóa, hiện đại hóa là gì?","o":["Thực hiện tạo lập các điều kiện cần thiết trên tất cả các mặt của đời sống xã hội","Đẩy mạnh ứng dụng những thành tựu khoa học, công nghệ mới, hiện đại","Chuyển đổi cơ cấu kinh tế theo hướng hiện đại, hợp lý và hiệu quả","Từng bước hoàn thiện quan hệ sản xuất phù hợp với trình độ phát triển của lực lượng sản xuất"],"c":0},{"n":262,"q":"Thực hiện các nhiệm vụ để chuyển đổi nền sản xuất - xã hội lạc hậu sang nền sản xuất - xã hội hiện đại không bao hàm nội dung nào sau đây?","o":["Đẩy mạnh ứng dụng những thành tựu khoa học, công nghệ mới, hiện đại","Chuyển đổi cơ cấu kinh tế theo hướng hiện đại, hợp lý và hiệu quả","Từng bước hoàn thiện quan hệ sản xuất phù hợp với trình độ phát triển của lực lượng sản xuất","Xây dựng chiến lược phát triển nền kinh tế tri thức và đảm bảo về an ninh quốc phòng"],"c":3},{"n":263,"q":"Công nghiệp hóa, hiện đại hóa và ứng dụng khoa học công nghệ mới, hiện đại đòi hỏi phải được tiến hành như thế nào?","o":["Tiến hành từng bước, tuần tự ở tất cả các ngành, các vùng và các lĩnh vực của nền kinh tế","Tiến hành đồng bộ, cân đối ở tất cả các ngành, các vùng và các lĩnh vực của nền kinh tế","Tiến hành đồng bộ, cân đối ở tất cả các lĩnh vực kinh tế","Tiến hành nhanh chóng, hiệu quả ở tất cả các ngành, các vùng kinh tế"],"c":1},{"n":264,"q":"Chuyển dịch cơ cấu ngành kinh tế theo hướng hiện đại, hiệu quả chính là?","o":["Tăng tỷ trọng ngành nông nghiệp, giảm tỷ trọng ngành công nghiệp và dịch vụ trong GDP","Tăng tỷ trọng ngành dịch vụ, giảm tỷ trọng ngành nông nghiệp và công nghiệp trong GDP","Tăng tỷ trọng ngành công nghiệp và dịch vụ, giảm tỷ trọng ngành nông nghiệp trong GDP","Tăng tỷ trọng ngành công nghiệp và nông nghiệp, giảm tỷ trọng ngành dịch vụ trong GDP"],"c":2},{"n":265,"q":"Cơ cấu lợi ích nào dưới đây thuộc thành phần kinh tế nhà nước","o":["Lợi ích nhà nước, lợi ích tập thể, lợi ích cá nhân","Lợi ích doanh nghiệp, lợi ích xã hội, lợi ích cá nhân","Lợi ích chủ doanh nghiệp, lợi ích cá nhân, lợi ích xã hội","Lợi ích nhà nước, lợi ích xã hội, lợi ích doanh nghiệp"],"c":0},{"n":266,"q":"Chọn câu trả lời sai khi đề cập đến những đặc điểm chủ yếu của nền kinh tế tri thức?","o":["Tri thức trở thành lực lượng sản xuất gián tiếp","Công nghệ thông tin được ứng dụng rộng rãi","Nguồn nhân lực nhanh chóng được tri thức hóa","Mọi hoạt động đều có liên quan đến vấn đề toàn cầu hóa kinh tế"],"c":0},{"n":267,"q":"Mục tiêu của công nghiệp hóa, hiện đại hóa nền kinh tế quốc dân ở nước ta là nhằm?","o":["Phát triển kinh tế - xã hội","Nâng cao vị thế trên trường quốc tế","Xây dựng chủ nghĩa xã hội","Đảm bảo chất lượng cuộc sống"],"c":2},{"n":268,"q":"Để thích ứng với các mạng công nghiệp lần thứ tư, công nghiệp hóa, hiện đại hóa ở Việt Nam phải như thế nào? Chọn câu trả lời sai","o":["Hoàn thiện thể chế, xây dựng nền kinh tế dựa trên nền tảng sáng tạo","Nắm bắt và đẩy mạnh việc ứng dụng những thành tựu của cuộc cách mạng công nghiệp 4.0","Chuẩn bị các điều kiện cần thiết để ứng phó với những tác động tiêu cực của cách mạng công nghiệp 4.0","Duy trì nền kinh tế ổn định, tăng cường nhờ hỗ trợ từ các nước phát triển"],"c":3},{"n":269,"q":"Trong số các nội dung sau đây, nội dung nào không biểu thị cho các điều kiện cần thiết để ứng phó với những tác động tiêu cực của cách mạng công nghiệp 4.0?","o":["Tích cực chủ động hội nhập quốc tế","Phát triển hợp lý các vùng lãnh thổ","Phát triển ngành nông nghiệp theo hướng phát huy lợi thế về tài nguyên thiên nhiên","Đẩy mạnh công nghiệp hóa, hiện đại hóa nông nghiệp, nông thôn"],"c":2},{"n":270,"q":"Nội dung nào sau đây không phải là điều kiện cần thiết để ứng phó với những tác động tiêu cực của cách mạng công nghiệp 4.0?","o":["Xây dựng và phát triển hạ tầng kỹ thuật về công nghệ thông tin và truyền thông","Cải tạo, mở rộng, nâng cấp và xây dựng mới có trọng điểm kết cấu hạ tầng kinh tế, xã hội tạo điều kiện để thu hút đầu tư trong và ngoài nước","Phát huy lợi thế trong nước để phát triển nông nghiệp","Phát triển nguồn nhân lực, đặc biệt là nguồn nhân lực chất lượng cao"],"c":2}];
+    const SAVE_KEY = "triethoc.quiz.full.v2";
+    const LETTERS = ["A","B","C","D"];
+    const state = { screen:"start", packageId:null, index:0, answers:{}, status:{}, reviewIndex:0 };
+    const els = {
+      saveState: document.getElementById("saveState"),
+      screenStart: document.getElementById("screenStart"),
+      screenGame: document.getElementById("screenGame"),
+      screenFinish: document.getElementById("screenFinish"),
+      packageGrid: document.getElementById("packageGrid"),
+      resumeBtn: document.getElementById("resumeBtn"),
+      backHomeBtn: document.getElementById("backHomeBtn"),
+      finishBtn: document.getElementById("finishBtn"),
+      redoBtn: document.getElementById("redoBtn"),
+      prevBtn: document.getElementById("prevBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      restartBtn: document.getElementById("restartBtn"),
+      homeBtn: document.getElementById("homeBtn"),
+      gamePackageTitle: document.getElementById("gamePackageTitle"),
+      gameProgressLabel: document.getElementById("gameProgressLabel"),
+      energyCount: document.getElementById("energyCount"),
+      energyLine: document.getElementById("energyLine"),
+      questionNumber: document.getElementById("questionNumber"),
+      questionText: document.getElementById("questionText"),
+      optionsBox: document.getElementById("optionsBox"),
+      feedbackBox: document.getElementById("feedbackBox"),
+      finishPackageTitle: document.getElementById("finishPackageTitle"),
+      finishCountLabel: document.getElementById("finishCountLabel"),
+      scoreGrid: document.getElementById("scoreGrid"),
+      reviewQNumber: document.getElementById("reviewQNumber"),
+      reviewQuestion: document.getElementById("reviewQuestion"),
+      reviewStatus: document.getElementById("reviewStatus"),
+      reviewOptions: document.getElementById("reviewOptions"),
+      reviewSummary: document.getElementById("reviewSummary")
+    };
+
+    function rangeForPackage(id) {
+      if (id === 1) return [1,50];
+      if (id === 2) return [51,100];
+      if (id === 3) return [101,150];
+      if (id === 4) return [151,200];
+      return [201,270];
+    }
+    function questionsForPackage(id) {
+      const r = rangeForPackage(id);
+      return QUESTION_BANK.filter(q => q.n >= r[0] && q.n <= r[1]);
+    }
+    function currentPackage() {
+      return PACKAGES.find(p => p.id === state.packageId) || PACKAGES[0];
+    }
+    function currentQuestions() {
+      return questionsForPackage(state.packageId || 1);
+    }
+    function currentQuestion() {
+      return currentQuestions()[state.index] || null;
+    }
+    function counts() {
+      const qs = currentQuestions();
+      let correct = 0, wrong = 0, pending = 0;
+      for (const q of qs) {
+        const st = state.status[q.n];
+        if (st === "correct") correct++;
+        else if (st === "wrong") wrong++;
+        else pending++;
+      }
+      return { correct, wrong, pending, total: qs.length };
+    }
+    function save() {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+      els.saveState.textContent = "Đã lưu tự động";
+    }
+    function load() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") Object.assign(state, parsed);
+      } catch (e) {}
+    }
+    function showScreen(name) {
+      state.screen = name;
+      els.screenStart.classList.toggle("active", name === "start");
+      els.screenGame.classList.toggle("active", name === "game");
+      els.screenFinish.classList.toggle("active", name === "finish");
+      save();
+    }
+    function renderPackages() {
+      els.packageGrid.innerHTML = PACKAGES.map(pkg => {
+        const count = questionsForPackage(pkg.id).length;
+        return `
+          <button type="button" class="pkg" data-package="${pkg.id}" style="--a:${pkg.a};--b:${pkg.b}">
+            <div class="demo-tag">${pkg.demo}</div>
+            <div class="shapewrap"><div class="shape ${pkg.shape}">${pkg.id}</div></div>
+            <h3>${pkg.label}</h3>
+            <div class="meta">${count} câu</div>
+          </button>`;
+      }).join("");
+      els.resumeBtn.disabled = !state.packageId;
+    }
+    function renderEnergy() {
+      const qs = currentQuestions();
+      els.energyLine.innerHTML = qs.map((q, i) => {
+        const st = state.status[q.n];
+        const cls = st ? `done ${st}` : (i === state.index ? "current" : "");
+        return `<span class="dot ${cls}" title="Câu ${q.n}"></span>`;
+      }).join("");
+      const c = counts();
+      els.energyCount.textContent = `${c.correct + c.wrong} / ${c.total} đã làm`;
+      els.gameProgressLabel.textContent = `Câu ${state.index + 1} / ${qs.length}`;
+      els.finishCountLabel.textContent = `${c.total} câu`;
+    }
+    function renderGame() {
+      const q = currentQuestion();
+      if (!q) return;
+      const pkg = currentPackage();
+      const qs = currentQuestions();
+      const picked = state.answers[q.n];
+      const result = state.status[q.n];
+      const answered = picked !== undefined;
+
+      els.gamePackageTitle.textContent = `GÓI ${pkg.id}: ${pkg.label.toUpperCase()}`;
+      els.questionNumber.textContent = `Câu ${q.n}`;
+      els.questionText.textContent = q.q;
+      els.prevBtn.disabled = state.index === 0;
+      els.nextBtn.disabled = !answered;
+
+      els.optionsBox.innerHTML = q.o.map((opt, i) => {
+        const isCorrect = i === q.c;
+        let cls = "opt";
+        if (answered && picked === i && result === "correct") cls += " correct";
+        else if (answered && picked === i && result === "wrong") cls += " wrong";
+        else if (answered && isCorrect) cls += " correct";
+        else if (answered) cls += " muted";
+        return `
+          <button type="button" class="${cls}" data-opt="${i}" ${answered ? "disabled" : ""}>
+            <span class="mark">${LETTERS[i]}</span>
+            <span style="flex:1;line-height:1.55">${opt}</span>
+          </button>`;
+      }).join("");
+
+      if (answered) {
+        els.feedbackBox.classList.remove("hide");
+        els.feedbackBox.className = `feedback ${result === "correct" ? "ok" : "bad"}`;
+        els.feedbackBox.innerHTML = result === "correct"
+          ? `<div>Chính xác!</div><div style="font-weight:500;margin-top:4px">Bạn đã chọn đúng đáp án.</div>`
+          : `<div>Sai rồi!</div><div style="font-weight:500;margin-top:4px">Đáp án đúng là ${LETTERS[q.c]}. ${q.o[q.c]}</div>`;
+      } else {
+        els.feedbackBox.className = "hide";
+        els.feedbackBox.innerHTML = "";
+      }
+      renderEnergy();
+    }
+    function renderFinish() {
+      const qs = currentQuestions();
+      const pkg = currentPackage();
+      const c = counts();
+      els.finishPackageTitle.textContent = `GÓI ${pkg.id}: ${pkg.label.toUpperCase()}`;
+      els.finishCountLabel.textContent = `${c.total} câu`;
+      els.scoreGrid.innerHTML = qs.map((q, i) => {
+        const st = state.status[q.n] || "pending";
+        return `<button type="button" class="bubble ${st}" data-review="${i}">${i + 1}</button>`;
+      }).join("");
+
+      const q = qs[state.reviewIndex] || qs[0];
+      if (!q) return;
+      const picked = state.answers[q.n];
+      const st = state.status[q.n] || "pending";
+      els.reviewQNumber.textContent = `Câu ${q.n}`;
+      els.reviewQuestion.textContent = q.q;
+      els.reviewStatus.className = `chip ${st === "correct" ? "ok" : st === "wrong" ? "bad" : "wait"}`;
+      els.reviewStatus.textContent = st === "correct" ? "Đúng" : st === "wrong" ? "Sai" : "Chưa làm";
+      els.reviewOptions.innerHTML = q.o.map((opt, i) => {
+        const selected = picked === i;
+        const correct = q.c === i;
+        let cls = "review-opt";
+        if (selected && st === "wrong") cls += " wrong";
+        else if (selected && st === "correct") cls += " correct";
+        else if (correct) cls += " correct";
+        return `<div class="${cls}"><div class="m">${LETTERS[i]}</div><div style="flex:1;line-height:1.55">${opt}</div></div>`;
+      }).join("");
+      els.reviewSummary.innerHTML = picked === undefined
+        ? "Câu này chưa được làm. Trạng thái ở màn hình kết thúc là <b>xám</b>."
+        : (st === "correct"
+            ? "Bạn đã chọn đúng đáp án. Ô tròn của câu này được tô <b>xanh</b>."
+            : `Bạn đã chọn sai. Đáp án đúng là <b>${LETTERS[q.c]}. ${q.o[q.c]}</b>. Ô tròn của câu này được tô <b>đỏ</b>.`);
+    }
+    function render() {
+      renderPackages();
+      renderEnergy();
+      if (state.screen === "game") renderGame();
+      if (state.screen === "finish") renderFinish();
+      els.resumeBtn.disabled = !state.packageId;
+    }
+
+    function startPackage(id) {
+      state.packageId = id;
+      state.index = 0;
+      state.reviewIndex = 0;
+      state.screen = "game";
+      save();
+      showScreen("game");
+      render();
+    }
+    function resumePackage() {
+      if (!state.packageId) return;
+      showScreen(state.screen === "finish" ? "finish" : "game");
+      render();
+    }
+    function selectAnswer(optIndex) {
+      const q = currentQuestion();
+      if (!q) return;
+      if (state.answers[q.n] !== undefined) return;
+      state.answers[q.n] = optIndex;
+      state.status[q.n] = optIndex === q.c ? "correct" : "wrong";
+      save();
+      render();
+    }
+    function redoCurrent() {
+      const q = currentQuestion();
+      if (!q) return;
+      delete state.answers[q.n];
+      delete state.status[q.n];
+      save();
+      render();
+    }
+    function prevQuestion() {
+      if (state.index <= 0) return;
+      state.index -= 1;
+      save();
+      render();
+    }
+    function nextQuestion() {
+      const q = currentQuestion();
+      const qs = currentQuestions();
+      if (!q || state.answers[q.n] === undefined) return;
+      if (state.index >= qs.length - 1) {
+        showScreen("finish");
+        render();
+        return;
+      }
+      state.index += 1;
+      save();
+      render();
+    }
+    function finishNow() { showScreen("finish"); render(); }
+    function restartTest() {
+      state.index = 0; state.answers = {}; state.status = {}; state.reviewIndex = 0; state.screen = "game";
+      save(); showScreen("game"); render();
+    }
+    function backHome() { showScreen("start"); render(); }
+    function selectReview(i) { state.reviewIndex = i; render(); }
+
+    els.packageGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-package]");
+      if (!btn) return;
+      startPackage(Number(btn.dataset.package));
+    });
+    els.optionsBox.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-opt]");
+      if (!btn) return;
+      selectAnswer(Number(btn.dataset.opt));
+    });
+    els.scoreGrid.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-review]");
+      if (!btn) return;
+      selectReview(Number(btn.dataset.review));
+    });
+    els.resumeBtn.addEventListener("click", resumePackage);
+    els.backHomeBtn.addEventListener("click", backHome);
+    els.finishBtn.addEventListener("click", finishNow);
+    els.redoBtn.addEventListener("click", redoCurrent);
+    els.prevBtn.addEventListener("click", prevQuestion);
+    els.nextBtn.addEventListener("click", nextQuestion);
+    els.restartBtn.addEventListener("click", restartTest);
+    els.homeBtn.addEventListener("click", backHome);
+
+    load();
+    if (!state.packageId) state.packageId = 1;
+    showScreen(state.screen || "start");
+    render();
+    window.addEventListener("beforeunload", save);
+  </script>
+</body>
+</html>
